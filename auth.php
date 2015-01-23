@@ -36,7 +36,6 @@ return $login;
 }
 
 public static function createRandomKey(){
-  global $sqldberror;
 $keyset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 $randkey = "";
 for ($i=0; $i<256; $i++)
@@ -45,12 +44,13 @@ return $randkey;
 }
 
 public static function logon($user, $pw) {
+  global $sqldberror;
 // open ckey database
 $connect=mysql_connect('localhost',"root") or die ("cant connect to SQL");
 
 $setdb=mysql_query('use schuletest');
 if (!$setdb) {
-die ($sqldberror);
+die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
 }
 $loginfo=mysql_query('select password from users where uname like "'.$user.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurueck");
 $loginfo=mysql_fetch_row($loginfo)[0];
