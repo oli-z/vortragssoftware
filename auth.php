@@ -1,7 +1,8 @@
 <?php
 
 
-include('lang.php');
+require_once('config.php');
+require_once('lang/'.$lang.'.php');
 global $sqldberror;
 
 

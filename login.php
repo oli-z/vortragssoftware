@@ -5,7 +5,8 @@
 <?php
 
 require_once('auth.php');
-require_once('lang.php');
+require_once('config.php');
+require_once('lang/'.$lang.'.php');
 
 $logincomplete=false;
 if ($_POST["pass"]&&$_POST["user"]&&$_POST["sub"]) {
