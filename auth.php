@@ -12,7 +12,7 @@ public static function verify() {
 global $sqldberror;
 mysql_connect('localhost',"root") or die ('<div class="alert alert-danger" role="alert">cant connect to SQL</div>');
 
-mysql_query('use schuletest') or die ('<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div>');
+mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
 
 
 //delete old cIDs
