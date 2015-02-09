@@ -30,7 +30,7 @@ class auth {
       setcookie('key',$_COOKIE["key"],$extend);
     }
     else
-    $login=false;
+        $login=false;
     mysql_close();
     return $login;
   }
