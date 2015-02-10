@@ -83,7 +83,7 @@ public static function clean($z){
     return $randkey;
   }
 
-  public static funtion logout() {
+  public static function logout() {
     mysql_connect("localhost","root") or die ("cant connect to SQL");
     mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.' (logout)</div></div>');
     $logondata=hash("sha512",$_COOKIE["key"].hash("sha512",$ip);
