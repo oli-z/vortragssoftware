@@ -73,6 +73,7 @@ echo('
 	</div>
 	</div>
 ')
+?>
 <?php
 if(auth::verify()||$logincomplete)
 echo("<div>login OK hier gehts weiter</div>");
