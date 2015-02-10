@@ -33,7 +33,7 @@ public static function clean($z){
   public static function ip(){
     if (! isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
       $ip = $_SERVER['REMOTE_ADDR'];
-    
+    }
     else {
       $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
