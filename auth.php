@@ -53,9 +53,9 @@ public static function clean($z){
 //
 //
     //get IP
-    $ip=ip();
+    //$ip=ip();
     //delete old cIDs
-    $del=mysql_query('delete from session where void<'.time()) or die ("can delete old cIDs (verify)");
+    $del=mysql_query('delete from session where void<'.time()) or die ("cant delete old cIDs (verify)");
     //clean key
     $key=clean($_COOKIE["key"]);
     $key=hash("sha512",$_COOKIE["key"].hash("sha512",$ip);
