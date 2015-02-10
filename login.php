@@ -63,18 +63,16 @@ echo('
 else
 echo('
         <input type="submit" value="ausloggen" name="kill" class="btn btn-lg btn-warning btn-block">
-     ')
-</form>
+	</form>
 
-<br>
-<br>
-<br>
-<br>
+	<br>
+	<br>
+	<br>
+	<br>
 
-</div>
-</div>
-
-
+	</div>
+	</div>
+')
 <?php
 if(auth::verify()||$logincomplete)
 echo("<div>login OK hier gehts weiter</div>");
