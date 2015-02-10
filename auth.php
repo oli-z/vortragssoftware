@@ -55,7 +55,7 @@ public static function clean($z){
     $key=clean($_COOKIE["key"]);
     $key=hash("sha512",$_COOKIE["key"].hash("sha512",$ip);
     //check key
-    if(strlen($key)=256){
+    if(strlen($_COOKIE["key"])=256){
       $check=mysql_query('select count(cID) from session where cid like "'.$key.'"');
       $num = mysql_result ($check,0);
       if ($num>0){
@@ -86,7 +86,9 @@ public static function clean($z){
   public static funtion logout() {
     mysql_connect("localhost","root") or die ("cant connect to SQL");
     mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.' (logout)</div></div>');
-    mysql_query('delete from session where cid like "'.hash("sha512",$_COOKIE["key"].hash("sha512",$ip).'"') or die ('cant delete');
+    $logondata=hash("sha512",$_COOKIE["key"].hash("sha512",$ip);
+    mysql_query('delete from session where cid like "'.$logondata.'"') or die ('cant delete');
+    unset($logondata);
     mysql_close();
   }
 
@@ -109,7 +111,9 @@ public static function clean($z){
       $duration=time()+600;
       mysql_connect("localhost","root") or die ('<div class="alert alert-danger" role="alert">cant connect to SQL</div>');
       mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
-      $insert=mysql_query('insert into session (cid,void) values ("'.hash("sha512",$chash.hash("sha512",$ip).'",'.$duration.')') or die ('<div class="alert alert-danger" role="alert">cant insert</div>');
+      $logon2=hash("sha512",$chash.hash("sha512",$ip);
+      $insert=mysql_query('insert into session (cid,void) values ("'.$logondata.'",'.$duration.')') or die ('<div class="alert alert-danger" role="alert">cant insert</div>');
+      unset($logon2)
       mysql_close();
       setcookie('key',$chash,$duration);
       return true;
