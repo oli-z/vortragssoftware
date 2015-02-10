@@ -58,7 +58,7 @@ public static function clean($z){
     $del=mysql_query('delete from session where void<'.time()) or die ("cant delete old cIDs (verify)");
     //clean key
     $key=clean($_COOKIE["key"]);
-    $key=hash("sha512",$_COOKIE["key"].hash("sha512",$ip);
+    $key=hash("sha512",$_COOKIE["key"].hash("sha512",$ip));
     //check key
     if(strlen($_COOKIE["key"])=256){
       $check=mysql_query('select count(cID) from session where cid like "'.$key.'"');
