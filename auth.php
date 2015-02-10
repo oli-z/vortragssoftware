@@ -47,6 +47,9 @@ public static function clean($z){
 
     mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
 
+//Test
+//
+//
     //get IP
     $ip=ip();
     //delete old cIDs
