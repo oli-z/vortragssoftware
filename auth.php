@@ -55,7 +55,7 @@ public static function clean($z){
     $key=clean($_COOKIE["key"]);
     $key=hash("sha512",$_COOKIE["key"].hash("sha512",$ip));
     //check key
-    if(strlen($_COOKIE["key"])=256){
+    if(strlen($_COOKIE["key"])==256){
       $check=mysql_query('select count(cID) from session where cid like "'.$key.'"');
       $num = mysql_result ($check,0);
       if ($num>0){
