@@ -38,7 +38,6 @@ public static function clean($z){
       $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
     return $ip
-  }
   
   public static function verify() {
     // open ckey database
