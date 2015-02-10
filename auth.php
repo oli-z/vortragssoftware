@@ -37,11 +37,12 @@ public static function clean($z){
     else {
       $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
-die (__LINE__);
+
     return $ip;
   }
   
   public static function verify() {
+  	die (__LINE__);
     // open ckey database
     global $sqldberror;
     mysql_connect('localhost',"root") or die ('<div class="alert alert-danger" role="alert">cant connect to SQL (verify)</div>');
