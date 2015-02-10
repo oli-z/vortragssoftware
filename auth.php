@@ -113,7 +113,7 @@ public static function clean($z){
       mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
       $logon2=hash("sha512",$chash.hash("sha512",$ip));
       $insert=mysql_query('insert into session (cid,void) values ("'.$logondata.'",'.$duration.')') or die ('<div class="alert alert-danger" role="alert">cant insert</div>');
-      unset($logon2)
+      unset($logon2);
       mysql_close();
       setcookie('key',$chash,$duration);
       return true;
