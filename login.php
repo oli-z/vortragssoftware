@@ -52,7 +52,7 @@
 
 <form method="post" action="login.php" class="form-signin">
 <?php
-if(!(verify()||$logincomplete))
+if(!(auth::verify()||$logincomplete))
 echo('
 	<input type="text" class="form-control" name="user" placeholder="Banutzername">
   	<br>
