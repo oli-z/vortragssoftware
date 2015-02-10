@@ -53,17 +53,17 @@
 <form method="post" action="login.php" class="form-signin">
 <?php
 if(!(verify()||$logincomplete))
-echo("
-  <input type="text" class="form-control" name="user" placeholder="Banutzername">
-  <br>
-  <input type="password" class="form-control" name="pass" placeholder="passwort">
-  <br>
-        <input type="submit" value="absenden" name="sub" class="btn btn-lg btn-success btn-block">
-        ");
+echo('
+	<input type="text" class="form-control" name="user" placeholder="Banutzername">
+  	<br>
+  	<input type="password" class="form-control" name="pass" placeholder="passwort">
+  	<br>
+  	<input type="submit" value="absenden" name="sub" class="btn btn-lg btn-success btn-block">
+    ');
 else
-echo("
+echo('
         <input type="submit" value="ausloggen" name="kill" class="btn btn-lg btn-warning btn-block">
-        ")
+     ')
 </form>
 
 <br>
