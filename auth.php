@@ -37,7 +37,7 @@ public static function clean($z){
     else {
       $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
-    echo (__LINE__);
+die (__LINE__);
     return $ip;
   }
   
