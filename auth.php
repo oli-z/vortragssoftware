@@ -42,18 +42,13 @@ public static function clean($z){
   }
   
   public static function verify() {
-  	die (__LINE__);
     // open ckey database
     global $sqldberror;
     mysql_connect('localhost',"root") or die ('<div class="alert alert-danger" role="alert">cant connect to SQL (verify)</div>');
 
     mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
-
-//Test
-//
-//
     //get IP
-    //$ip=ip();
+    $ip=ip();
     //delete old cIDs
     $del=mysql_query('delete from session where void<'.time()) or die ("cant delete old cIDs (verify)");
     //clean key
