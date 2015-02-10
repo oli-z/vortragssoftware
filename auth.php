@@ -37,6 +37,7 @@ public static function clean($z){
     else {
       $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
+    echo (__LINE__);
     return $ip;
   }
   
@@ -57,7 +58,6 @@ public static function clean($z){
     //clean key
     $key=clean($_COOKIE["key"]);
     $key=hash("sha512",$_COOKIE["key"].hash("sha512",$ip);
-    echo (__LINE__);
     //check key
     if(strlen($_COOKIE["key"])=256){
       $check=mysql_query('select count(cID) from session where cid like "'.$key.'"');
