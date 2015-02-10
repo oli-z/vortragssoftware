@@ -86,7 +86,7 @@ public static function clean($z){
   public static function logout() {
     mysql_connect("localhost","root") or die ("cant connect to SQL");
     mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.' (logout)</div></div>');
-    $logondata=hash("sha512",$_COOKIE["key"].hash("sha512",$ip);
+    $logondata=hash("sha512",$_COOKIE["key"].hash("sha512",$ip));
     mysql_query('delete from session where cid like "'.$logondata.'"') or die ('cant delete');
     unset($logondata);
     mysql_close();
