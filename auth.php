@@ -48,7 +48,7 @@ public static function clean($z){
 
     mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
     //get IP
-    $ip=ip();
+    $ip=auth::ip();
     //delete old cIDs
     $del=mysql_query('delete from session where void<'.time()) or die ("cant delete old cIDs (verify)");
     //clean key
