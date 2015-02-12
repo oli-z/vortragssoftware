@@ -6,8 +6,8 @@ require_once('lang/'.config::$lang.'.php');
 global $sqldberror;
 
 class auth {
-
-function __construct(private $ssecret;) {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
+private $ssecret;
+function __construct() {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
         include_once "inc/secure/secret.php"; //super-secret server key -> $csecret
         $this::$ssecret = $ssecret;
     }
@@ -98,7 +98,7 @@ public static function clean($z){
   }
 
   public static function logon($user, $pw) {
-  echo self::$csecret
+  echo self::$csecret;
     global $sqldberror;
     // open ckey database
     $connect=mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL");

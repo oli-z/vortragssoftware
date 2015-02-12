@@ -59,7 +59,7 @@ echo('
   	<br>
   	<input type="password" class="form-control" name="pass" placeholder="passwort">
   	<br>
-  	<input type="submit" value="absenden" name="sub" class="btn btn-lg btn-success btn-block" style="margin-left: auto;margin-right: auto;width:50%;>');
+  	<input type="submit" value="absenden" name="sub" class="btn btn-lg btn-success btn-block" style="margin-left: auto;margin-right: auto;width:50%;">');
 else
 echo('
         <input type="submit" value="ausloggen" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;width:50%;">
