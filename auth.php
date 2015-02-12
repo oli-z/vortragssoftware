@@ -25,9 +25,9 @@ function aesdecrypt($decrypt, $mc_key) {
   
 //remove special chars -> SQL Injection
 public static function clean($z){
-    $z = strtolower($z);
     $z = preg_replace('/[^a-zA-Z0-9]+/', '', $z);
     $z = str_replace(' ', '', $z);
+    return $z;
 }
 
   public static function ip(){
@@ -52,7 +52,7 @@ public static function clean($z){
     //delete old cIDs
     $del=mysql_query('delete from session where void<'.time()) or die ("cant delete old cIDs (verify)");
     //clean key
-    $key=clean($_COOKIE["key"]);
+    $key=auth::clean($_COOKIE["key"]);
     $key=hash("sha512",$_COOKIE["key"].hash("sha512",$ip));
     //check key
     if(strlen($_COOKIE["key"])==256){
@@ -69,7 +69,7 @@ public static function clean($z){
     }
     else{
       $login=false;
-      echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
+      if(isset($_COOKIE["key"]))echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
     }
     mysql_close();
     return $login;
@@ -101,9 +101,10 @@ public static function clean($z){
     if (!$setdb) {
       die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(logon)</div></div>');
     }
-    $user=clean($user);
+    $user=auth::clean($user);
     $loginfo=mysql_query('select password from users where uname like "'.$user.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurück (logon)");
-    $loginfo=mysql_fetch_row($loginfo)[0];
+   $loginfo=mysql_result($loginfo,0);
+    //echo(hash("sha512",hash("sha512",$pw))."<br />".$loginfo."<br />");
     mysql_close();
     if(hash("sha512",hash("sha512",$pw))==$loginfo)
     {
@@ -119,6 +120,7 @@ public static function clean($z){
       return true;
     }
     else{
+      echo("logon fail");
       setcookie('key','lol',1);
       return false;
     }
