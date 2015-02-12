@@ -11,7 +11,7 @@ private static $ssecret;
 
 function getsecret() {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
         include_once "inc/secure/secret.php"; //super-secret server key -> $csecret
-        self::$ssecret = $ssecret;
+        self::$ssecret = $fsecret;
     }
 
 //AES descrypt
@@ -95,12 +95,14 @@ public static function clean($z){
 
   public static function logout() {
     self::getsecret();
+	if(isset($_COOKIE["key"])){
     mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL");
     mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.' (logout)</div></div>');
     $logondata=hash("sha512",$_COOKIE["key"].hash("sha512",self::ip()));
     mysql_query('delete from session where cid like "'.$logondata.'"') or die ('cant delete');
     unset($logondata);
     mysql_close();
+	}
 	setcookie('key','lol',1);
   }
 
