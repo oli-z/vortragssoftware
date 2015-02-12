@@ -2,11 +2,17 @@
 
 
 require_once('config.php');
-require_once('lang/'.$lang.'.php');
+require_once('lang/'.config::$lang.'.php');
 global $sqldberror;
-
+private $ssecret;
 
 class auth {
+
+function __construct() {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
+        include_once "inc/secure/secret.php"; //super-secret server key -> $csecret
+        $this::$ssecret = $ssecret;
+    }
+
 //AES descrypt
 function aescrypt($encrypt, $mc_key) {
     $iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB),MCRYPT_RAND);
@@ -15,7 +21,6 @@ function aescrypt($encrypt, $mc_key) {
     return $encode;
 }
 
-	
 function aesdecrypt($decrypt, $mc_key) {   
     $decoded = base64_decode($decrypt);
     $iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB),MCRYPT_RAND);
@@ -44,9 +49,9 @@ public static function clean($z){
   public static function verify() {
     // open ckey database
     global $sqldberror;
-    mysql_connect('localhost',"root") or die ('<div class="alert alert-danger" role="alert">cant connect to SQL (verify)</div>');
+    mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL (verify)</div>');
 
-    mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
+    mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
     //get IP
     $ip=auth::ip();
     //delete old cIDs
@@ -62,7 +67,7 @@ public static function clean($z){
         $login=true;
         $extend=time()+600;
         $new=mysql_query('update session set void='.$extend.' where cid like "'.$key.'"') or die ("cant update session");
-        setcookie('key',$key,$extend);
+        setcookie('key',$_COOKIE["key"],$extend);
       }
       else
         $login=false;
@@ -84,36 +89,39 @@ public static function clean($z){
   }
 
   public static function logout() {
-    mysql_connect("localhost","root") or die ("cant connect to SQL");
-    mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.' (logout)</div></div>');
-    $logondata=hash("sha512",$_COOKIE["key"].hash("sha512",$ip));
+    mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL");
+    mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.' (logout)</div></div>');
+    $logondata=hash("sha512",$_COOKIE["key"].hash("sha512",self::ip()));
     mysql_query('delete from session where cid like "'.$logondata.'"') or die ('cant delete');
     unset($logondata);
     mysql_close();
+	setcookie('key','lol',1);
   }
 
   public static function logon($user, $pw) {
+  echo self::$csecret
     global $sqldberror;
     // open ckey database
-    $connect=mysql_connect('localhost',"root") or die ("cant connect to SQL");
+    $connect=mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL");
 
-    $setdb=mysql_query('use schuletest');
+    $setdb=mysql_query('use '.config::$dbname);
     if (!$setdb) {
       die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(logon)</div></div>');
     }
     $user=auth::clean($user);
     $loginfo=mysql_query('select password from users where uname like "'.$user.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurück (logon)");
-   $loginfo=mysql_result($loginfo,0);
+    $loginfo=mysql_result($loginfo,0);
     //echo(hash("sha512",hash("sha512",$pw))."<br />".$loginfo."<br />");
     mysql_close();
     if(hash("sha512",hash("sha512",$pw))==$loginfo)
     {
+	  $ip=self::ip();
       $chash=auth::createRandomKey();
       $duration=time()+600;
-      mysql_connect("localhost","root") or die ('<div class="alert alert-danger" role="alert">cant connect to SQL</div>');
-      mysql_query('use schuletest') or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
+      mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL</div>');
+      mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
       $logon2=hash("sha512",$chash.hash("sha512",$ip));
-      $insert=mysql_query('insert into session (cid,void) values ("'.$logondata.'",'.$duration.')') or die ('<div class="alert alert-danger" role="alert">cant insert</div>');
+      $insert=mysql_query('insert into session (cid,void) values ("'.$logon2.'",'.$duration.')') or die ('<div class="alert alert-danger" role="alert">cant insert</div>');
       unset($logon2);
       mysql_close();
       setcookie('key',$chash,$duration);
