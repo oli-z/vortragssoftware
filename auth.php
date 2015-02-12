@@ -6,10 +6,12 @@ require_once('lang/'.config::$lang.'.php');
 global $sqldberror;
 
 class auth {
-private $ssecret;
-function __construct() {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
+
+private static $ssecret;
+
+function getsecret() {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
         include_once "inc/secure/secret.php"; //super-secret server key -> $csecret
-        $this::$ssecret = $ssecret;
+        self::$ssecret = $ssecret;
     }
 
 //AES descrypt
@@ -46,10 +48,12 @@ public static function clean($z){
   }
   
   public static function verify() {
-    // open ckey database
+    //check cookie
+	if(isset($_COOKIE["key"])){
+	// open ckey database
     global $sqldberror;
     mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL (verify)</div>');
-
+    self::getsecret();
     mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
     //get IP
     $ip=auth::ip();
@@ -73,8 +77,10 @@ public static function clean($z){
     }
     else{
       $login=false;
-      if(isset($_COOKIE["key"]))echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
-    }
+      echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
+    }}
+	else
+	  return false;
     mysql_close();
     return $login;
   }
@@ -88,6 +94,7 @@ public static function clean($z){
   }
 
   public static function logout() {
+    self::getsecret();
     mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL");
     mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.' (logout)</div></div>');
     $logondata=hash("sha512",$_COOKIE["key"].hash("sha512",self::ip()));
@@ -98,7 +105,8 @@ public static function clean($z){
   }
 
   public static function logon($user, $pw) {
-  echo self::$csecret;
+    self::getsecret();
+    //echo self::$ssecret; //debug
     global $sqldberror;
     // open ckey database
     $connect=mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL");
