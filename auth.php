@@ -4,11 +4,10 @@
 require_once('config.php');
 require_once('lang/'.config::$lang.'.php');
 global $sqldberror;
-private $ssecret;
 
 class auth {
 
-function __construct() {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
+function __construct(private $ssecret;) {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
         include_once "inc/secure/secret.php"; //super-secret server key -> $csecret
         $this::$ssecret = $ssecret;
     }
