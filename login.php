@@ -29,7 +29,7 @@
 
   require_once('auth.php');
   require_once('config.php');
-  require_once('lang/'.$lang.'.php');
+  require_once('lang/'.config::$lang.'.php');
 
   $logincomplete=false;
   if ($_POST["pass"]&&$_POST["user"]&&$_POST["sub"]) {
