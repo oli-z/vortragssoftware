@@ -22,7 +22,7 @@
                      \/____/                  \/____/                  \/____/          \/____/
 -->
 <head>
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
+  <link rel="stylesheet" href="/inc/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
 </head>
 <body>
   <?php
@@ -33,6 +33,7 @@
 
   $logincomplete=false;
   if ($_POST["pass"]&&$_POST["user"]&&$_POST["sub"]) {
+  //die("<br /><br />".$_POST["user"]."<br />".hash("sha512",hash("sha512",$_POST["pass"])));
     $result = auth::logon($_POST["user"],$_POST["pass"]);
 
     if ($result==true) {
@@ -62,7 +63,7 @@ echo('
     ');
 else
 echo('
-        <input type="submit" value="ausloggen" name="kill" class="btn btn-lg btn-warning btn-block">
+        <input type="submit" value="ausloggen" name="kill" class="btn btn-xs btn-warning btn-block">
 	</form>
 
 	<br>
