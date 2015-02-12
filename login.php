@@ -22,7 +22,7 @@
                      \/____/                  \/____/                  \/____/          \/____/
 -->
 <head>
-  <link rel="stylesheet" href="/inc/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
+  <link rel="stylesheet" href="inc/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
 </head>
 <body>
   <?php
@@ -32,7 +32,7 @@
   require_once('lang/'.config::$lang.'.php');
 
   $logincomplete=false;
-  if ($_POST["pass"]&&$_POST["user"]&&$_POST["sub"]) {
+  if (isset($_POST["sub"])&&$_POST["pass"]&&$_POST["user"]) {
   //die("<br /><br />".$_POST["user"]."<br />".hash("sha512",hash("sha512",$_POST["pass"])));
     $result = auth::logon($_POST["user"],$_POST["pass"]);
 
@@ -40,7 +40,7 @@
       $logincomplete=true;
     }
   }
-  if($_POST["kill"]) {
+  if(isset($_POST["kill"])) {
     auth::logout();
   }
 ?>
@@ -59,17 +59,12 @@ echo('
   	<br>
   	<input type="password" class="form-control" name="pass" placeholder="passwort">
   	<br>
-  	<input type="submit" value="absenden" name="sub" class="btn btn-lg btn-success btn-block">
-    ');
+  	<input type="submit" value="absenden" name="sub" class="btn btn-lg btn-success btn-block" style="margin-left: auto;margin-right: auto;width:50%;>');
 else
 echo('
-        <input type="submit" value="ausloggen" name="kill" class="btn btn-xs btn-warning btn-block">
+        <input type="submit" value="ausloggen" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;width:50%;">
 	</form>
 
-	<br>
-	<br>
-	<br>
-	<br>
 
 	</div>
 	</div>
