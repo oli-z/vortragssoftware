@@ -85,10 +85,10 @@ public static function clean($z){
     return $login;
   }
 
-  public static function createRandomKey(){
+  public static function createRandomKey($l=256){
     $keyset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     $randkey = "";
-    for ($i=0; $i<256; $i++)
+    for ($i=0; $i<$l; $i++)
     $randkey .= substr($keyset, rand(0, strlen($keyset)-1), 1);
     return $randkey;
   }
