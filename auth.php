@@ -9,8 +9,8 @@ class auth {
 
 private static $ssecret;
 
-function getsecret() {   //Konstruktior, wird aitomatisch aufgerufen -> holt Session secret key aus datei
-        include_once "inc/secure/secret.php"; //super-secret server key -> $csecret
+function getsecret() {   //Konstruktor, wird automatisch aufgerufen -> holt Session secret key aus datei
+        include "./inc/secure/secret.php"; //super-secret server key -> $fsecret
         self::$ssecret = $fsecret;
     }
 
@@ -67,7 +67,7 @@ public static function clean($z){
       $check=mysql_query('select count(cID) from session where cid like "'.$key.'"');
       $num = mysql_result ($check,0);
       if ($num>0){
-        $login=true;
+		$login=mysql_result(mysql_query('select suid from session where cid like "'.$key.'"'),0);
         $extend=time()+600;
         $new=mysql_query('update session set void='.$extend.' where cid like "'.$key.'"') or die ("cant update session");
         setcookie('key',$_COOKIE["key"],$extend);
@@ -118,7 +118,8 @@ public static function clean($z){
       die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(logon)</div></div>');
     }
     $user=auth::clean($user);
-    $loginfo=mysql_query('select password from users where uname like "'.$user.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurück (logon)");
+    $loginfo=mysql_query('select password,uid from users where uname like "'.$user.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurück (logon)");
+	$luid=mysql_result($loginfo,0,1);
     $loginfo=mysql_result($loginfo,0);
     //echo(hash("sha512",hash("sha512",$pw))."<br />".$loginfo."<br />");
     mysql_close();
@@ -130,11 +131,11 @@ public static function clean($z){
       mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL</div>');
       mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
       $logon2=hash("sha512",$chash.hash("sha512",$ip));
-      $insert=mysql_query('insert into session (cid,void) values ("'.$logon2.'",'.$duration.')') or die ('<div class="alert alert-danger" role="alert">cant insert</div>');
+      $insert=mysql_query('insert into session (cid,void,suid) values ("'.$logon2.'",'.$duration.','.$luid.')') or die ('<div class="alert alert-danger" role="alert">cant insert(logon)'.mysql_error().'</div>');
       unset($logon2);
       mysql_close();
       setcookie('key',$chash,$duration);
-      return true;
+      return $luid;
     }
     else{
       echo("logon fail");
