@@ -1,3 +1,3 @@
 <?php
-$ssecret="AddYourSecretHere";
+$fsecret="AddYourSecretHere";
 ?>
