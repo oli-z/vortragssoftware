@@ -1,9 +1,6 @@
 <?php
-
-
 require_once('config.php');
 require_once('lang/'.config::$lang.'.php');
-global $sqldberror;
 
 class auth {
 
@@ -28,10 +25,56 @@ function aesdecrypt($decrypt, $mc_key) {
     $decrypted = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $mc_key, trim($decoded),MCRYPT_MODE_ECB, $iv));
     return $decrypted;
 }
-  
+
+public static function cryptokey($uid,$cok=false,$debug=false) {
+	mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL (verify)</div>');
+    self::getsecret();
+    mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
+	$usec=mysql_query('select usecret from users where uid='.$uid) or die("can't fetch user secret<br>");//get usersecret from DB
+	$usec=mysql_result($usec,0);//get user secret from DB Result
+	if(!$cok) //check old key=false -> check current key
+	$t=time();
+	else
+	$t=time()-21600; //6h zurück, um mit altem key zu arbeiten (im falle der Übergangsphase)
+	$day=floor($t/86400); //ermittle Tageswert
+	$aeshash=hash("sha512",self::$ssecret.$usec.$day);//berechne Basis-Hash aus Tag, Server Secret und User Secret
+	$offset=floor(($t%86400)/21600)*32; //offset des Hash =1/4 Tag -> 6h, weil AES max keylength-> 32 char und hash = 128 char -> 4 mögliche keys
+	$aeskey=substr($aeshash,($offset),32); //sortiere key aus Hash
+	if($debug) echo ("ssec=".self::$ssecret."<br>usec=".$usec."<br>day=".$day."<br>off=".$offset."<br>hash=".$aeshash."<br>key=".$aeskey."<br>"); //debug
+	return $aeskey; //gib key zurück
+}
+
+function cdec($cookie){
+if(substr_count($cookie,":")==1) { //cookie sections intact -> 2 sections seperated with :
+$id=explode(":",$cookie)[0];
+$cipher=explode(":",$cookie)[1];
+if(ctype_digit($id) && $cipher==self::clean($cipher,1)) { //cookie data intact -> userID=number,cipher=base64string
+$t=self::aesdecrypt($cipher,self::cryptokey($id)); //try decrypt current time section
+if($t==self::clean($t))  //AES fail -> random junk -> wont survive clean function, AES success -> sessionID(A-Z,a-z,0-9) -> survives clean function
+return $id.":".$t; //return user id and session key
+else {
+$k=self::cryptokey($id,1);
+$t=self::aesdecrypt($cipher,$k); //check last time section
+if($t==self::clean($t)) { //see above
+return $id.":".$t; //return user id and session key -> continue verify
+}
+else
+return false;
+}
+}
+else
+return false;
+}
+else
+return false;
+}
+
 //remove special chars -> SQL Injection
-public static function clean($z){
-    $z = preg_replace('/[^a-zA-Z0-9]+/', '', $z);
+public static function clean($z,$b64=false){
+	if($b64)
+		$z = preg_replace('/[^a-zA-Z0-9+\/=]+/', '', $z);
+	else
+		$z = preg_replace('/[^a-zA-Z0-9]+/', '', $z);
     $z = str_replace(' ', '', $z);
     return $z;
 }
@@ -56,21 +99,25 @@ public static function clean($z){
     self::getsecret();
     mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
     //get IP
-    $ip=auth::ip();
+    $ip=self::ip();
     //delete old cIDs
     $del=mysql_query('delete from session where void<'.time()) or die ("cant delete old cIDs (verify)");
     //clean key
-    $key=auth::clean($_COOKIE["key"]);
-    $key=hash("sha512",$_COOKIE["key"].hash("sha512",$ip));
+    $key=self::cdec($_COOKIE["key"]); //decode Cookie -> get client uID+sID
+	if($key) {
+	$uid=explode(":",$key)[0]; // get client uID
+	$key=explode(":",$key)[1]; // get client sID
+    $hkey=hash("sha512",$key.hash("sha512",$ip)); //get DB sID by hashing of Client sID and IP
     //check key
-    if(strlen($_COOKIE["key"])==256){
-      $check=mysql_query('select count(cID) from session where cid like "'.$key.'"');
-      $num = mysql_result ($check,0);
-      if ($num>0){
-		$login=mysql_result(mysql_query('select suid from session where cid like "'.$key.'"'),0);
-        $extend=time()+600;
-        $new=mysql_query('update session set void='.$extend.' where cid like "'.$key.'"') or die ("cant update session");
-        setcookie('key',$_COOKIE["key"],$extend);
+    if(strlen($key)==256){ //key length
+      $num = mysql_result (mysql_query('select count(cID) from session where cid like "'.$hkey.'"'),0); //count server sIDs
+      if ($num>0){  //if an ID exists
+		$login=mysql_result(mysql_query('select suid from session where cid like "'.$hkey.'"'),0); //get server uID
+		if($login==$uid) { //if both IDs match
+        $extend=time()+600; //create new session end
+        $new=mysql_query('update session set void='.$extend.' where cid like "'.$hkey.'"') or die ("cant update session"); //update new session end in mysql
+        setcookie('key',$uid.":".self::aescrypt($key,self::cryptokey($uid)),$extend); //create/replace AES-crypted cookie
+		}
       }
       else
         $login=false;
@@ -78,7 +125,13 @@ public static function clean($z){
     else{
       $login=false;
       echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
-    }}
+    }
+	}
+	else{
+	  return false;
+	  echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
+	  }
+	}
 	else
 	  return false;
     mysql_close();
@@ -117,7 +170,7 @@ public static function clean($z){
     if (!$setdb) {
       die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(logon)</div></div>');
     }
-    $user=auth::clean($user);
+    $user=self::clean($user);
     $loginfo=mysql_query('select password,uid from users where uname like "'.$user.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurück (logon)");
 	$luid=mysql_result($loginfo,0,1);
     $loginfo=mysql_result($loginfo,0);
@@ -126,7 +179,7 @@ public static function clean($z){
     if(hash("sha512",hash("sha512",$pw))==$loginfo)
     {
 	  $ip=self::ip();
-      $chash=auth::createRandomKey();
+      $chash=self::createRandomKey();
       $duration=time()+600;
       mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL</div>');
       mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
@@ -134,7 +187,8 @@ public static function clean($z){
       $insert=mysql_query('insert into session (cid,void,suid) values ("'.$logon2.'",'.$duration.','.$luid.')') or die ('<div class="alert alert-danger" role="alert">cant insert(logon)'.mysql_error().'</div>');
       unset($logon2);
       mysql_close();
-      setcookie('key',$chash,$duration);
+	  $chash=self::aescrypt($chash,self::cryptokey($luid));
+      setcookie('key',$luid.":".$chash,$duration);
       return $luid;
     }
     else{
