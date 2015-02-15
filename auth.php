@@ -17,6 +17,25 @@ function aescrypt($encrypt, $mc_key) {
     return $encode;
 }
 
+public static function wpass($uid,$pw)
+{
+	global $sqldberror;
+    // open ckey database
+	if(ctype_digit($uid)){
+    $connect=mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL (wp)");
+    $setdb=mysql_query('use '.config::$dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(writepass)</div></div>');
+    $usec=mysql_query('select usecret from users where uid = "'.$uid.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurück (writepass)");
+	$usec=mysql_result($usec,0);
+	$ssecret=self::getsecret();
+	$pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
+	$pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
+	//echo $pw; //debug
+	mysql_query ('update users set password="'.$pw.'" where uid='.$uid) or die (mysql_error());
+	mysql_close();
+	}
+	else echo "uid net numerisch";
+}
+
 function aesdecrypt($decrypt, $mc_key) {   
     $decoded = base64_decode($decrypt);
     $iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB),MCRYPT_RAND);
@@ -43,7 +62,7 @@ function cryptokey($uid,$cok=false,$debug=false) {
 }
 
 public static function isadmin($uid){
-
+if(ctype_digit($uid));
 }
 
 function cdec($cookie){
@@ -196,7 +215,7 @@ public static function clean($z,$b64=false){
 	$ssecret=self::getsecret();
 	$pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
 	$pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
-    if $(pw==$loginfo)
+    if ($pw==$loginfo)
     {
 	  $ip=self::ip();
       $chash=self::createRandomKey();
