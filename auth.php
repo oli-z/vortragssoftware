@@ -17,20 +17,46 @@ function aescrypt($encrypt, $mc_key) {
     return $encode;
 }
 
+private static function dbc($link){ //connect
+global $sqldberror;
+	mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL (".$link.")");
+    mysql_query('use '.config::$dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'('.$link.')</div></div>');
+}
+
+private static function dbq($link,$action, $col/*leave empty for delete, set param for update,cols für insert*/,$table,$filter=""/*filter -> values bei insert*/){
+$q="";
+if($action=="select"){
+	if($filter)
+		$q="select ".$col." from ".$table." where ".$filter;
+	else
+		$q="select ".$col." from ".$table;
+}
+if($action=="update"&&$filter)
+	$q="update ".$table." set ".$col." where ".$filter;
+if($action=="delete"&&$filter)
+	$q="delete from ".$table." where ".$filter;
+if($action=="insert")
+	$q='insert into '.$table.' '.'('.$col.') values ('.$filter.')';
+// echo $q; // -> debug
+if($q)
+$q=mysql_query($q) or die ("cannot ".$action." db (".$link.")");
+return $q;
+}
+
+
+
 public static function wpass($uid,$pw)
 {
-	global $sqldberror;
+	self::dbc("wp");
     // open ckey database
 	if(ctype_digit($uid)){
-    $connect=mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL (wp)");
-    $setdb=mysql_query('use '.config::$dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(writepass)</div></div>');
-    $usec=mysql_query('select usecret from users where uid = "'.$uid.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurück (writepass)");
+    $usec=self::dbq("wp","select","usecret","users",'uid = "'.$uid.'"');
 	$usec=mysql_result($usec,0);
 	$ssecret=self::getsecret();
 	$pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
 	$pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
 	//echo $pw; //debug
-	mysql_query ('update users set password="'.$pw.'" where uid='.$uid) or die (mysql_error());
+	self::dbq('wp','update','password="'.$pw.'"','users','uid='.$uid);
 	mysql_close();
 	}
 	else echo "uid net numerisch";
@@ -44,10 +70,9 @@ function aesdecrypt($decrypt, $mc_key) {
 }
 
 function cryptokey($uid,$cok=false,$debug=false) {
-	mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL (verify)</div>');
-    $ssecret=self::getsecret();
-    mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
-	$usec=mysql_query('select usecret from users where uid='.$uid) or die("can't fetch user secret<br>");//get usersecret from DB
+	self::dbc("cryptokey");
+	$ssecret=self::getsecret();//get Server Secret from file
+	$usec=self::dbq("cryptokey","select","usecret","users",'uid = "'.$uid.'"');//get usersecret from DB
 	$usec=mysql_result($usec,0);//get user secret from DB Result
 	if(!$cok) //check old key=false -> check current key
 	$t=time();
@@ -62,7 +87,12 @@ function cryptokey($uid,$cok=false,$debug=false) {
 }
 
 public static function isadmin($uid){
-if(ctype_digit($uid));
+if(ctype_digit($uid))
+{
+self::dbc("isadmin");
+return mysql_result(self::dbq("isadmin","select","admin","users","uid=".$uid),0);
+mysql_close();
+}
 }
 
 function cdec($cookie){
@@ -112,11 +142,9 @@ public static function clean($z,$b64=false){
   }
   
   public static function verify() {
-    mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL (verify)</div>');
-    self::getsecret();
-    mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(verify)</div></div>');
+    self::dbc("verify");
 	//delete old cIDs
-    $del=mysql_query('delete from session where void<'.time()) or die ("cant delete old cIDs (verify)");
+	self::dbq("verify","delete","","session",'void<'.time());
 	//check cookie
 	if(isset($_COOKIE["key"])){
 	// open ckey database
@@ -131,24 +159,27 @@ public static function clean($z,$b64=false){
     $hkey=hash("sha512",$key.hash("sha512",$ip)); //get DB sID by hashing of Client sID and IP
     //check key
     if(strlen($key)==256){ //key length
-      $num = mysql_result (mysql_query('select count(cID) from session where cid like "'.$hkey.'"'),0); //count server sIDs
+	  $num=mysql_result(self::dbq("verify","select","count(sID)","session",'cid="'.$hkey.'"'),0);//count server sIDs for session Key
       if ($num>0){  //if an ID exists
-		$login=mysql_result(mysql_query('select suid from session where cid like "'.$hkey.'"'),0); //get server uID
+	    $login=mysql_result(self::dbq("verify","select","suid","session",'cid="'.$hkey.'"'),0);//get server session-uID
 		if($login==$uid) { //if both IDs match
         $extend=time()+600; //create new session end
-        $new=mysql_query('update session set void='.$extend.' where cid like "'.$hkey.'"') or die ("cant update session"); //update new session end in mysql
+		self::dbq('verify','update','void='.$extend,'session','cid="'.$hkey.'"');//update new session end in mysql
         setcookie('key',$uid.":".self::aescrypt($key,self::cryptokey($uid)),$extend); //create/replace AES-crypted cookie
 		}
 		else{
 		$login=false;
 		setcookie('key','',time()-3600);
 		unset($_COOKIE["key"]);
+		//echo "fail1"; 
 		}
       }
-      else
+      else{
         $login=false;
 		setcookie('key','',time()-3600);
 		unset($_COOKIE["key"]);
+		//echo "fail2";
+		}
     }
     else{
 	setcookie('key','',time()-3600);
@@ -184,10 +215,9 @@ public static function clean($z,$b64=false){
 	$key=self::cdec($_COOKIE["key"]); //decode Cookie -> get client uID+sID
 	if($key) {
 	$key=explode(":",$key)[1]; // get client sID
-    mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL");
-    mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.' (logout)</div></div>');
+    self::dbc("logout");
     $logondata=hash("sha512",$key.hash("sha512",self::ip()));
-    mysql_query('delete from session where cid like "'.$logondata.'"') or die ('cant delete');
+	self::dbq('logout','delete','','session','cid="'.$logondata.'"');
     unset($logondata);
     mysql_close();
 	}
@@ -199,33 +229,26 @@ public static function clean($z,$b64=false){
   public static function logon($user, $pw) {
     global $sqldberror;
     // open ckey database
-    $connect=mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL");
-
-    $setdb=mysql_query('use '.config::$dbname);
-    if (!$setdb) {
-      die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'(logon)</div></div>');
-    }
+    self::dbc("logon");
     $user=self::clean($user);
-    $loginfo=mysql_query('select password,uid,usecret from users where uname like "'.$user.'"') or die ("Datenbankproblem oder user existiert nicht, bitte zurück (logon)");
+    $loginfo=self::dbq("logon","select","password,uid,usecret","users",'uname="'.$user.'"');
 	$luid=mysql_result($loginfo,0,1);
-    $loginfo=mysql_result($loginfo,0);
 	$usec=mysql_result($loginfo,0,2);
-    //echo(hash("sha512",hash("sha512",$pw))."<br />".$loginfo."<br />");
-    mysql_close();
+    $loginfo=mysql_result($loginfo,0);
+	//echo $luid."<br>".$usec."<br>".$loginfo."<br>"; //debug -> show uID,uSecret,dbPass
 	$ssecret=self::getsecret();
+	//echo $pw;  //debug -> klartext pw
 	$pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
 	$pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
+	//echo $pw;  //debug -> PW Hash
     if ($pw==$loginfo)
     {
 	  $ip=self::ip();
       $chash=self::createRandomKey();
       $duration=time()+600;
-      mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ('<div class="alert alert-danger" role="alert">cant connect to SQL</div>');
-      mysql_query('use '.config::$dbname) or die ('<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'</div></div>');
       $logon2=hash("sha512",$chash.hash("sha512",$ip));
-      $insert=mysql_query('insert into session (cid,void,suid) values ("'.$logon2.'",'.$duration.','.$luid.')') or die ('<div class="alert alert-danger" role="alert">cant insert(logon)'.mysql_error().'</div>');
+	  self::dbq("logon","insert","cid,void,suid","session",'"'.$logon2.'",'.$duration.','.$luid);//create new session in db
       unset($logon2);
-      mysql_close();
 	  $chash=self::aescrypt($chash,self::cryptokey($luid));
       setcookie('key',$luid.":".$chash,$duration);
       return $luid;
@@ -236,6 +259,7 @@ public static function clean($z,$b64=false){
 	  unset($_COOKIE["key"]);
       return false;
     }
+	mysql_close();
   }
 }
 ?>
