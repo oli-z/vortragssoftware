@@ -16,51 +16,7 @@ class auth {
     $encode = base64_encode($passcrypt);
     return $encode;
   }
-
-  private static function dbc($link){ //connect
-    global $sqldberror;
-    mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL (".$link.")");
-    mysql_query('use '.config::$dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'.$sqldberror.'('.$link.')</div></div>');
-  }
-
-  private static function dbq($link,$action, $col/*leave empty for delete, set param for update,cols für insert*/,$table,$filter=""/*filter -> values bei insert*/){
-    $q="";
-    if($action=="select"){
-	     if($filter)
-		     $q="select ".$col." from ".$table." where ".$filter;
-	     else
-		     $q="select ".$col." from ".$table;
-       }
-       if($action=="update"&&$filter)
-	$q="update ".$table." set ".$col." where ".$filter;
-if($action=="delete"&&$filter)
-	$q="delete from ".$table." where ".$filter;
-if($action=="insert")
-	$q='insert into '.$table.' '.'('.$col.') values ('.$filter.')';
-// echo $q; // -> debug
-if($q)
-$q=mysql_query($q) or die ("cannot ".$action." db (".$link.")");
-return $q;
-}
-
-
-
-  public static function wpass($uid,$pw){
-	   self::dbc("wp");
-     // open ckey database
-	   if(ctype_digit($uid)){
-       $usec=self::dbq("wp","select","usecret","users",'uid = "'.$uid.'"');
-       $usec=mysql_result($usec,0);
-       $ssecret=self::getsecret();
-       $pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
-       $pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
-       //echo $pw; //debug
-       self::dbq('wp','update','password="'.$pw.'"','users','uid='.$uid);
-       mysql_close();
-     }
-     else echo "uid net numerisch";
-  }
-
+  
   function aesdecrypt($decrypt, $mc_key) {
     $decoded = base64_decode($decrypt);
     $iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB),MCRYPT_RAND);
@@ -68,21 +24,67 @@ return $q;
     return $decrypted;
   }
 
+  private static function dbc($link){ //connect
+    mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL (".$link.")");
+    mysql_select_db(config::$dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'."cannot connect".'('.$link.')</div></div>');
+  }
+
+  private static function dbq($link,$action, $col/*leave empty for delete, set param for update,cols für insert*/,$table,$filter=""/*filter -> values bei insert*/){
+    $q="";
+    if($action=="select"){
+      if($filter)
+        $q="select ".$col." from ".$table." where ".$filter;
+      else
+        $q="select ".$col." from ".$table;
+    }
+    if($action=="update"&&$filter)
+      $q="update ".$table." set ".$col." where ".$filter;
+    if($action=="delete"&&$filter)
+      $q="delete from ".$table." where ".$filter;
+    if($action=="insert")
+      $q='insert into '.$table.' '.'('.$col.') values ('.$filter.')';
+    // echo $q; // -> debug
+    if($q)
+      $q=mysql_query($q) or die ("cannot ".$action." db (".$link.")");
+    return $q;
+  }
+
+
+
+  public static function wpass($uid,$pw){
+    if(ctype_digit($uid)){
+      self::dbc("wp");
+      $usec=self::dbq("wp","select","usecret","users",'uid = "'.$uid.'"');
+      $usec=mysql_result($usec,0);
+      $ssecret=self::getsecret();
+      $pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
+      $pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
+      //echo $pw; //debug
+      self::dbq('wp','update','password="'.$pw.'"','users','uid='.$uid);
+      mysql_close();
+    }
+    else echo "uid net numerisch";
+  }
+
+
+
   function cryptokey($uid,$cok=false,$debug=false) {
-	   self::dbc("cryptokey");
-     $ssecret=self::getsecret();//get Server Secret from file
-	   $usec=self::dbq("cryptokey","select","usecret","users",'uid = "'.$uid.'"');//get usersecret from DB
-     $usec=mysql_result($usec,0);//get user secret from DB Result
-     if(!$cok) //check old key=false -> check current key
-        $t=time();
-	   else
-	      $t=time()-21600; //6h zurück, um mit altem key zu arbeiten (im falle der Übergangsphase)
-	   $day=floor($t/86400); //ermittle Tageswert
-	   $aeshash=hash("sha512",$ssecret.$usec.$day.$_SERVER['HTTP_USER_AGENT']);//berechne Basis-Hash aus Tag, Server Secret und User Secret
-	   $offset=floor(($t%86400)/21600)*32; //offset des Hash =1/4 Tag -> 6h, weil AES max keylength-> 32 char und hash = 128 char -> 4 mögliche keys
-	   $aeskey=substr($aeshash,($offset),32); //sortiere key aus Hash
-	   if($debug) echo ("ssec=".$ssecret."<br>usec=".$usec."<br>day=".$day."<br>browser=".$_SERVER['HTTP_USER_AGENT']."<br>off=".$offset."<br>hash=".$aeshash."<br>key=".$aeskey."<br>"); //debug
-        return $aeskey; //gib key zurück
+    self::dbc("cryptokey");
+    $ssecret=self::getsecret();//get Server Secret from file
+     $usec=self::dbq("cryptokey","select","usecret","users",'uid = "'.$uid.'"');//get usersecret from DB
+    $usec=mysql_result($usec,0);//get user secret from DB Result
+    if(!$cok) //check old key=false -> check current key
+      $t=time();
+    else
+      $t=time()-21600; //6h zurück, um mit altem key zu arbeiten (im falle der Übergangsphase)
+    $day=floor($t/86400); //ermittle Tageswert
+    $aeshash=hash("sha512",$ssecret.$usec.$day.$_SERVER['HTTP_USER_AGENT']);//berechne Basis-Hash aus Tag, Server Secret und User Secret
+    $offset=floor(($t%86400)/21600)*32; //offset des Hash =1/4 Tag -> 6h, weil AES max keylength-> 32 char und hash = 128 char -> 4 mögliche keys
+    $aeskey=substr($aeshash,($offset),32); //sortiere key aus Hash
+    if($debug) echo ("ssec=".$ssecret."<br>usec=".$usec."<br>day=".$day."<br>browser=".$_SERVER['HTTP_USER_AGENT']."<br>off=".$offset."<br>hash=".$aeshash."<br>key=".$aeskey."<br>"); //debug
+      return $aeskey; //gib key zurück
+    else
+    return false;
   }
 
   public static function isadmin($uid){
@@ -112,7 +114,7 @@ return $q;
         }
         }
       else
-      	return false;
+        return false;
     }
     else
       return false;
@@ -120,16 +122,16 @@ return $q;
 
 //remove special chars -> SQL Injection
   public static function clean($z,$b64=false){
-	  if($b64)
-        $z = preg_replace('/[^a-zA-Z0-9+\/=]+/', '', $z);
-	  else
-        $z = preg_replace('/[^a-zA-Z0-9]+/', '', $z);
+    if($b64)
+      $z = preg_replace('/[^a-zA-Z0-9+\/=]+/', '', $z);
+    else
+      $z = preg_replace('/[^a-zA-Z0-9]+/', '', $z);
     $z = str_replace(' ', '', $z);
     return $z;
   }
 
-  public static function ip(){
-    if (! isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+  public static function ip($noproxy=false){
+    if (!(isset($_SERVER['HTTP_X_FORWARDED_FOR'])&&$noproxy)) {
       $ip = $_SERVER['REMOTE_ADDR'];
     }
     else {
@@ -142,11 +144,9 @@ return $q;
   public static function verify() {
     self::dbc("verify");
     //delete old cIDs
-	  self::dbq("verify","delete","","session",'void<'.time());
+    self::dbq("verify","delete","","session",'void<'.time());
     //check cookie
-    if(isset($_COOKIE["key"])){
-      // open ckey database
-      global $sqldberror;
+    if(isset($_COOKIE["key"])){ //if cookie exists
       //get IP
       $ip=self::ip();
       //clean key
@@ -164,37 +164,37 @@ return $q;
               $extend=time()+600; //create new session end
               self::dbq('verify','update','void='.$extend,'session','cid="'.$hkey.'"');//update new session end in mysql
               setcookie('key',$uid.":".self::aescrypt($key,self::cryptokey($uid)),$extend); //create/replace AES-crypted cookie
-		        }
-		        else{
-		            $login=false;
-                setcookie('key','',time()-3600);
-		            unset($_COOKIE["key"]);
-		            //echo "fail1";
-		        }
+            }
+            else{
+              $login=false;
+              setcookie('key','',time()-3600);
+              unset($_COOKIE["key"]);
+              //echo "fail1"; //debug
+            }
           }
           else{
             $login=false;
-		        setcookie('key','',time()-3600);
-		        unset($_COOKIE["key"]);
-		        //echo "fail2";
-		      }
+            setcookie('key','',time()-3600);
+            unset($_COOKIE["key"]);
+            //echo "fail2"; //debug
+          }
+        }
+        else{
+          setcookie('key','',time()-3600);
+          unset($_COOKIE["key"]);
+          $login=false;
+          echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
+        }
       }
       else{
-	       setcookie('key','',time()-3600);
-         unset($_COOKIE["key"]);
-         $login=false;
-         echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
+        setcookie('key','',time()-3600);
+        unset($_COOKIE["key"]);
+        echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
+        $login=false;
       }
-	   }
-	else{
-	  setcookie('key','',time()-3600);
-	  unset($_COOKIE["key"]);
-	  echo '<div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;Sitzungsschlüssel defekt.<br />Bitte neu einloggen</div></div>';
-	  $login=false;
-	  }
-  }
-	else
-	  $login=false;
+    }
+    else
+      $login=false;
     mysql_close();
     return $login;
   }
@@ -225,7 +225,6 @@ return $q;
   }
 
   public static function logon($user, $pw) {
-    global $sqldberror;
     // open ckey database
     self::dbc("logon");
     $user=self::clean($user);
