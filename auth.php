@@ -31,7 +31,7 @@ class auth {
     mysql_select_db(config::$dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'."cannot connect".'('.$link.')</div></div>');
   }
 
-  private static function dbq($link,$action, $col/*leave empty for delete, set param for update,cols für insert*/,$table,$filter=""/*filter -> values bei insert*/){
+  private static function dbq($link,$action, $col/*leave empty for delete, set param for update,cols für insert*/,$table,$filter=""/*filter -> values bei insert*/,$debug=false){
     $q="";
     if($action=="select"){
       if($filter)
@@ -45,7 +45,7 @@ class auth {
       $q="delete from ".$table." where ".$filter;
     if($action=="insert")
       $q='insert into '.$table.' '.'('.$col.') values ('.$filter.')';
-    // echo $q; // -> debug
+    if($debug) echo $q; // -> debug
     if($q)
       $q=mysql_query($q) or die ("cannot ".$action." db (".$link.")");
     return $q;
@@ -69,6 +69,7 @@ class auth {
   
     public static function wotp($uid,$otp){
     if(ctype_digit($uid)){
+      $otp=clean($otp,32);//clean OTP key to base32
       self::dbc("wotp");
       $usec=self::dbq("wotp","select","usecret","users",'uid = "'.$uid.'"');
       $usec=mysql_result($usec,0);
@@ -82,6 +83,36 @@ class auth {
       mysql_close();
     }
     else echo "uid net numerisch";
+  }
+  
+  public static function cuser($uname,$pw,$adm,$otp="") {
+    $user=self::clean($uname);//clean user
+    if($uname&&$pw) {//check if both are set (and in case of $user if something is left after cleaning)
+      self::dbc("cuser"); //db connect
+      if(mysql_num_rows(self::dbq("cuser","select","uid","users",'uname="'.$uname.'"'))===0) {// check for alredy existing username === because in case of failure false is given qhich would be equal 0.
+        $ssecret=self::getsecret(); //get server secret
+        $usec=self::createRandomKey(); //create fresh user secret
+        $pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));//create PW Hash step 1
+        $pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));//create PW Hash step 2
+        if($adm==true)
+          $adm=1;
+        else
+          $adm=0;
+        self::dbq("cuser","insert","uname,password,usecret,admin","users",'"'.$uname.'","'.$pw.'","'.$usec.'",'.$adm);//create new user in db
+        $uid=mysql_result(self::dbq("cuser","select","uid","users",'uname="'.$uname.'"'),0); //get User-ID
+        mysql_close();
+        if($otp){  //if we have an OTP seed
+          if(strlen($otp>=16)) //check for length
+            self::wotp($uid,$otp);
+          else 
+            echo "OTP nicht gültig, user wurde ohne OTP kreiert";
+        }
+      }
+      else
+        echo "fehler oder Username existiert bereits";
+    }
+    else
+      echo "user oder passwort nicht eingegeben (bei Username werden sonderzeichen, sowie Leerzeichen ignoriert)";
   }
   
   //create AES key for Session Cookie
