@@ -1,6 +1,10 @@
 <?php
-require_once('config.php');  //config data, like language 
-require_once('lang/'.config::$lang.'.php'); //language data for error codes
+include_once('config.php');  //config data, like language 
+if(isset(config::$lang))
+  $lang=Config::$lang;
+else
+  $lang="de";
+include_once('lang/'.$lang.'.php'); //language data for error codes
 require_once('otp.php'); //OTP library comment this and wotp and the OTP part of verify() out for shutting off OTP
 
 class auth {
@@ -25,10 +29,24 @@ class auth {
     return $decrypted;
   }
   
+  public static function install($dbhost,$dbuser,$dbpw,$db,$lang) {
+    
+  }
+  
   //EasySQL Mini-API
-  private static function dbc($link){ //connect
-    mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL (".$link.")");
-    mysql_select_db(config::$dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'."cannot connect".'('.$link.')</div></div>');
+  private static function dbc($link,$dbhost=false,$dbuser=false,$dbpass=false,$dbname=false){ //connect
+    if((isset(config::$dbhost)||$dbhost!==false)&&(isset(config::$dbuser)||$user!==false)&&(isset(config::$dbname)||$dbname!==false)&&isset((config::$dbpass)||$dbpass!==false))  //gibt es datenbankdaten
+      if($dbhost===false)
+        $dbhost=config::$dbhost;
+      if($dbname===false)
+        $dbname=config::$dbname;
+      if($dbuser===false)
+        $dbuser=config::$dbuser;
+      if($dbpass===false)
+        $dbpass=config::$dbpass;
+      mysql_connect($dbhost,$dbuser,$dbpass) or die ("cant connect to SQL (".$link.")");
+      mysql_select_db($dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'."cannot connect".'('.$link.')</div></div>');
+    }
   }
 
   private static function dbq($link,$action, $col/*leave empty for delete, set param for update,cols für insert*/,$table,$filter=""/*filter -> values bei insert*/,$debug=false){
