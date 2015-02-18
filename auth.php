@@ -29,12 +29,38 @@ class auth {
     return $decrypted;
   }
   
-  public static function install($dbhost,$dbuser,$dbpw,$db,$lang) {
-    
+  
+  
+  public static function installdb($dbhost,$dbuser,$dbpass,$dbname,$lang) {
+    if(self::dbc("install",$$dbhost,$dbuser,$dbpass,$dbname,1)){
+      file_put_contents("config.php",
+      "<?php
+class config{
+// MySQL-Einstellungen
+public static $dbaes  = false;
+public static $dbhost = \"".$dbhost."\"; // DB-Server
+public static $dbuser = \"".$dbuser."\"; // DB-Nutzername
+public static $dbpass = \"".$dbpass."\"; // DB-Passwort
+public static $dbname = \"".$dbname."\"; // DB-Name
+// allgemeine Einstellungen
+public static $lang = \"".$lang."\"; // Sprache - Sprachdatei muss im \"lang\"-Ordner liegen, bei dem wert de zb eine de.php
+}
+?>");
+      mysql_query("CREATE TABLE `session` (`sid` int(11) NOT NULL,`suid` int(11) NOT NULL,`cid` text NOT NULL,`void` int(11) NOT NULL) DEFAULT CHARSET=utf8");
+      mysql_query("CREATE TABLE `users` (`uid` int(11) NOT NULL,`uname` text NOT NULL,`password` text NOT NULL,`otp` text NOT NULL,`admin` int(11) NOT NULL,`usecret` text NOT NULL) DEFAULT CHARSET=utf8");
+      mysql_query("ALTER TABLE `session` ADD PRIMARY KEY (`sid`)");
+      mysql_query("ALTER TABLE `users` ADD PRIMARY KEY (`uid`);");
+      mysql_query("ALTER TABLE `session` MODIFY `sid` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1");
+      mysql_query("ALTER TABLE `users` MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;");
+      return true;
+    }
+    else
+      echo mysql_error();
+      return false;
   }
   
   //EasySQL Mini-API
-  private static function dbc($link,$dbhost=false,$dbuser=false,$dbpass=false,$dbname=false){ //connect
+  private static function dbc($link,$dbhost=false,$dbuser=false,$dbpass=false,$dbname=false,$deep=false){ //connect
     if((isset(config::$dbhost)||$dbhost!==false)&&(isset(config::$dbuser)||$user!==false)&&(isset(config::$dbname)||$dbname!==false)&&isset((config::$dbpass)||$dbpass!==false))  //gibt es datenbankdaten
       if($dbhost===false)
         $dbhost=config::$dbhost;
@@ -44,8 +70,20 @@ class auth {
         $dbuser=config::$dbuser;
       if($dbpass===false)
         $dbpass=config::$dbpass;
-      mysql_connect($dbhost,$dbuser,$dbpass) or die ("cant connect to SQL (".$link.")");
-      mysql_select_db($dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'."cannot connect".'('.$link.')</div></div>');
+      if($deep){
+        $con=mysql_connect($dbhost,$dbuser,$dbpass) or die ("cant connect to SQL (".$link.")");
+        if(!$con)
+          return $con;
+        $db=mysql_select_db($dbname);
+        if(!$db)
+          return ($db);
+        return true;
+      }
+      else{  
+        mysql_connect($dbhost,$dbuser,$dbpass) or die ("cant connect to SQL (".$link.")");
+        mysql_select_db($dbname) or die ('<br><div class="container theme-showcase" role="main"><div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign"></span>&emsp;'."cannot connect".'('.$link.')</div></div>');
+        return true;
+      }
     }
   }
 
