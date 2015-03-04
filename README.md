@@ -17,3 +17,7 @@ Bediningen für Auth Framework:
 3.3. Punkt 3.1 Gilt nicht, wenn der Urheber einsicht auf den Quellcode anfragt (bspw. um den Code des Frameworks zu verbessern)
 
 4 Das Framework muss stehts unter diesen Bedingungen weitergegeben werden.
+
+Dev-ToDo/nicht vergessen:
+ - reCaptcha Key in den Setup
+ - Sprachdatei fertig machen (orzm)
