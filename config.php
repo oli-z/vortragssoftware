@@ -7,5 +7,6 @@ public static $dbpass = ""; // DB-Passwort
 public static $dbname = "schuletest"; // DB-Name
 // allgemeine Einstellungen
 public static $lang = "de"; // Sprache - Sprachdatei muss im "lang"-Ordner liegen
+public static $cpub = "6Lfzct4SAAAAAMpwqKGnuyvPitY2QWcE101EfwX_"; //Captcha-sitekey
 }
 ?>
