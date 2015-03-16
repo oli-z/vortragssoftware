@@ -9,19 +9,22 @@ class auth {
     include "./inc/secure/secret.php"; //super-secret server key -> $fsecret
 		return $fsecret;
   }
-
+  private function ccheck($captcha) {
+    include "./inc/secure/secret.php";
+    $response=file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=".$cskey."&response=".$captcha."&remoteip=".$_SERVER['REMOTE_ADDR']);
+    $response = json_decode($response, true);
+    return $response['success'];
+  }
   //AES cryptoset
   function aescrypt($encrypt, $mc_key) {
-    $iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB),MCRYPT_RAND);
-    $passcrypt = trim(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $mc_key,trim($encrypt),MCRYPT_MODE_ECB, $iv));
+    $passcrypt = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $mc_key,trim($encrypt),MCRYPT_MODE_ECB);
     $encode = base64_encode($passcrypt);
     return $encode;
   }
   
   function aesdecrypt($decrypt, $mc_key) {
     $decoded = base64_decode($decrypt);
-    $iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB),MCRYPT_RAND);
-    $decrypted = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $mc_key, trim($decoded),MCRYPT_MODE_ECB, $iv));
+    $decrypted = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $mc_key,$decoded,MCRYPT_MODE_ECB));
     return $decrypted;
   }
   
@@ -69,7 +72,7 @@ class auth {
   
     public static function wotp($uid,$otp){
     if(ctype_digit($uid)){
-      $otp=clean($otp,32);//clean OTP key to base32
+      $otp=self::clean($otp,32);//clean OTP key to base32
       self::dbc("wotp");
       $usec=self::dbq("wotp","select","usecret","users",'uid = "'.$uid.'"');
       $usec=mysql_result($usec,0);
@@ -78,7 +81,6 @@ class auth {
       $oaes=hash("sha512",$oaes.substr($ssecret,0,128).substr($usec,0,128));
       $oaes=substr($oaes,(32*$uid%4),32);
       $otp=self::aescrypt($otp,$oaes);
-      //echo $pw; //debug
       self::dbq('wotp','update','otp="'.$otp.'"','users','uid='.$uid);
       mysql_close();
     }
@@ -171,13 +173,17 @@ class auth {
 
 //remove special chars -> SQL Injection or Base32/64 safety-line
   public static function clean($z,$b=0){
-    if($b==64)
+    if($b==64){
       $z = preg_replace('/[^a-zA-Z0-9+\/=]+/', '', $z);
-    else
-      if($b==32)
-        preg_replace('/[^ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]+/', '', $z);
-      else
+    }
+    else {
+      if($b==32) {
+        $z = preg_replace('/[^ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]+/', '', $z);
+      }
+      else {
         $z = preg_replace('/[^a-zA-Z0-9]+/', '', $z);
+      }
+    }
     $z = str_replace(' ', '', $z);
     return $z;
   }
@@ -278,66 +284,73 @@ class auth {
   }
 
   //logon User
-  public static function logon($user, $pw, $otp="") {
+  public static function logon($user, $pw, $otp="",$captcha) {
     // open ckey database
-    self::dbc("logon");
-    $user=self::clean($user);
-    $loginfo=self::dbq("logon","select","password,uid,otp,usecret","users",'uname="'.$user.'"');
-    $luid=mysql_result($loginfo,0,1);
-    $usec=mysql_result($loginfo,0,3);
-    $lotp=mysql_result($loginfo,0,2);
-    $loginfo=mysql_result($loginfo,0);
-    //echo $luid."<br>".$usec."<br>".$loginfo."<br>"; //debug -> show uID,uSecret,dbPass
-    $ssecret=self::getsecret();
-    //echo $pw;  //debug -> klartext pw
-    $pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
-    $pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
-    //echo $pw;  //debug -> PW Hash
-    if ($pw==$loginfo){ //check correct PW
-      if($lotp){ //ckeck for db OTP  //for disabling OTP Cmment from this line to
-        if($otp){
-          if(self::clean($lotp,32)!=$lotp){ //OTP-seed not base32 -> AES-crypted
-            if(self::clean($lotp,64)==$lotp){ //otp-seed base64 --> AES-crypted
-              $oaes=hash("sha512",substr($usec,128,128).substr($ssecret,128,128));
-              $oaes=hash("sha512",$oaes.substr($ssecret,0,128).substr($usec,0,128));
-              $oaes=substr($oaes,(32*$luid%4),32);
-              $otplain=self::aesdecrypt($lotp,$oaes);
-              if($otplain==self::clean($otplain,32)&&strlen($otplain)>=16)
-              {
-                if(otp::verify_key($otplain, $otp,5))
-                  return $luid;
+    if($captcha) {
+      if(self::ccheck($captcha)) {
+        self::dbc("logon");
+        $user=self::clean($user);
+        $loginfo=self::dbq("logon","select","password,uid,otp,usecret","users",'uname="'.$user.'"');
+        $luid=mysql_result($loginfo,0,1);
+        $usec=mysql_result($loginfo,0,3);
+        $lotp=mysql_result($loginfo,0,2);
+        $loginfo=mysql_result($loginfo,0);
+        $ssecret=self::getsecret();
+        $pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
+        $pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
+        if ($pw==$loginfo){ //check correct PW                                            
+          if($lotp){ //ckeck for db OTP  //for disabling OTP Cmment from this line to
+            if($otp){
+              if(self::clean($lotp,32)!=$lotp){ //OTP-seed not base32 -> AES-crypted
+                if(self::clean($lotp,64)==$lotp){ //otp-seed base64 --> AES-crypted             
+                  $oaes=hash("sha512",substr($usec,128,128).substr($ssecret,128,128));
+                  $oaes=hash("sha512",$oaes.substr($ssecret,0,128).substr($usec,0,128));
+                  $oaes=substr($oaes,(32*$luid%4),32);
+                  $otplain=self::aesdecrypt($lotp,$oaes);
+                  if($otplain==self::clean($otplain,32)&&strlen($otplain)>=16)
+                  {
+                    if(otp::verify_key($otplain, $otp,5)); //wenn okay -> nichts machen -> einfach weiter zum ende des OTP checks
+                    else
+                      return false;
+                  }
+                  else
+                    return false; //OTP AES Fail
+                }            
+                else
+                  return false; // OTP DB Problem
               }
-              else
-                return false; //OTP AES Fail
-            }            
+              else{  //plaintext Seed
+                if(strlen($lotp>=16)&&otp::verify_key($lotp, $otp,5)); //wenn okay -> nichts machen -> einfach weiter zum ende des OTP checks
+                else
+                  return false;
+              }
+            }
             else
-              return false; // OTP DB Problem
-          }
-          else{  //plaintext Seed
-            if(strlen($lotp>=16)&&otp::verify_key($lotp, $otp,5))
-              return $luid;
-          }
+              return false; //OTp nötig aber nicht angegeben.
+          }  //OTP Check end  --> for disabling OTP comment until this line (including itself)
+          $ip=self::ip();
+          $chash=self::createRandomKey();
+          $duration=time()+600;
+          $logon2=hash("sha512",$chash.hash("sha512",$ip));
+          self::dbq("logon","insert","cid,void,suid","session",'"'.$logon2.'",'.$duration.','.$luid);//create new session in db
+          unset($logon2);
+          $chash=self::aescrypt($chash,self::cryptokey($luid));
+          setcookie('key',$luid.":".$chash,$duration);
+          return $luid;
         }
-        else
-          return false; //OTp nötig aber nicht angegeben.
-      }  //OTP Check end  --> for disabling OTP comment until this line (including itself)
-      $ip=self::ip();
-      $chash=self::createRandomKey();
-      $duration=time()+600;
-      $logon2=hash("sha512",$chash.hash("sha512",$ip));
-      self::dbq("logon","insert","cid,void,suid","session",'"'.$logon2.'",'.$duration.','.$luid);//create new session in db
-      unset($logon2);
-      $chash=self::aescrypt($chash,self::cryptokey($luid));
-      setcookie('key',$luid.":".$chash,$duration);
-      return $luid;
+        else{
+          echo("logon fail1");
+          setcookie('key','',time()-3600);
+          unset($_COOKIE["key"]);
+          return false;
+        }
+        mysql_close();
+      }
+      else
+        echo "etwas stimmt mit dem CAPTCHA nicht bitte versuche es erneut.";
     }
-    else{
-      echo("logon fail1");
-      setcookie('key','',time()-3600);
-      unset($_COOKIE["key"]);
-      return false;
-    }
-    mysql_close();
+    else
+        echo "captcha vergessen...";
   }
 }
 ?>
