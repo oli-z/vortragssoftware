@@ -40,7 +40,7 @@ if(!($vid||$logincomplete))
   <div style="width: 302px; height: 352px; margin-left: auto;margin-right: auto;">
     <div style="width: 302px; height: 352px; position: relative;">
       <div style="width: 302px; height: 352px; position: absolute;">
-        <iframe src="https://www.google.com/recaptcha/api/fallback?k="'.config::$cpub.'
+        <iframe src="https://www.google.com/recaptcha/api/fallback?k='.config::$cpub.'"
                 frameborder="0" scrolling="no"
                 style="width: 302px; height:352px; border-style: none;">
         </iframe>
