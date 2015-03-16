@@ -27,6 +27,7 @@ echo '<form method="post" action="login.php" class="form-signin">';
 $vid=auth::verify();
 if(!($vid||$logincomplete))
   echo('
+  <h1 style="text-align: center">Login-Formular</h1>
   <input type="text" class="form-control" name="user" placeholder="Banutzername" style="margin-left: auto;margin-right: auto;width:50%;">
   <br>
   <input type="password" class="form-control" name="pass" placeholder="passwort" style="margin-left: auto;margin-right: auto;width:50%;">
