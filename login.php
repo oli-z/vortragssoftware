@@ -3,7 +3,7 @@ echo ('
   <html lang="de">
     <head>
       <meta http-equiv="content-type" content="text/html; charset=utf-8">
-      <link rel="stylesheet" href="inc/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
+      <link rel="stylesheet" href="inc/css/bootstrap.css"> <!-- Bootstrap CSS laden -->
       <script src="https://www.google.com/recaptcha/api.js" async defer></script> <!-- reCaptcha -->
     </head>
     <body>
