@@ -1,6 +1,6 @@
 ﻿<head>
 	<meta charset="utf-8">
-	<link href="../inc/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../inc/css/bootstrap.css" rel="stylesheet">
 </head>
 <body>
 	<nav class="navbar navbar-inverse navbar-fixed-top">
@@ -28,7 +28,8 @@
         </div>
       </div>
     </nav>
-	
+<br>
+<br>
 	<div class="container theme-showcase" role="main">
 		<div class="jumbotron">
 			<h1>Benutzerverwaltung</h1>
@@ -69,7 +70,7 @@
 								</tbody>
 							</table>
 		</div>
-		
+
 		<a href="..">Zurück zur Hauptseite</a>
 	</div>
 </body>
