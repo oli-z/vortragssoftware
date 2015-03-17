@@ -27,12 +27,13 @@ echo '<form method="post" action="login.php" class="form-signin">';
 $vid=auth::verify();
 if(!($vid||$logincomplete))
   echo('
-  <h1 style="text-align: center">Login-Formular</h1>
-  <input type="text" class="form-control" name="user" placeholder="Banutzername" style="margin-left: auto;margin-right: auto;width:50%;">
+  <h1 style="text-align: center">'.lang::$loginform.'</h1>
+  <h3 style="text-align: center">'.lang::$loginformtext.'</h3>
+  <input type="text" class="form-control" name="user" placeholder="'.lang::$user.'" style="margin-left: auto;margin-right: auto;width:50%;">
   <br>
-  <input type="password" class="form-control" name="pass" placeholder="passwort" style="margin-left: auto;margin-right: auto;width:50%;">
+  <input type="password" class="form-control" name="pass" placeholder="'.lang::$pass.'" style="margin-left: auto;margin-right: auto;width:50%;">
   <br>
-  <input type="text" maxlength="6" class="form-control" name="otp" placeholder="OTP, wenn du nicht weißt was das ist, leerlassen" autocomplete="off" style="margin-left: auto;margin-right: auto;width:50%;">
+  <input type="text" maxlength="6" class="form-control" name="otp" placeholder="'.lang::$otp.'" autocomplete="off" style="margin-left: auto;margin-right: auto;width:50%;">
   <br>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <div class="g-recaptcha" data-sitekey="'.config::$cpub.'" style="margin-left: auto;margin-right: auto; display: table;"></div>
@@ -57,9 +58,9 @@ if(!($vid||$logincomplete))
   </div>
 </noscript>
   <br>
-  <input type="submit" value="absenden" name="sub" class="btn btn-lg btn-success btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
+  <input type="submit" value="'.lang::$login.'" name="sub" class="btn btn-lg btn-success btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
 else
-  echo('<input type="submit" value="ausloggen" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
+  echo('<input type="submit" value="'.lang::$logout.'" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
 
 if($vid||$logincomplete){
   if(!$vid)
