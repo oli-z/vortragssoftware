@@ -1,3 +1,14 @@
+<?php
+require_once('auth.php');
+require_once('config.php');
+require_once('lang/'.config::$lang.'.php');
+if(isset($_POST["kill"])) {
+  auth::logout();
+}
+if(auth::verify()){
+  echo('');
+
+echo('
 <html lang="de">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
@@ -9,9 +20,14 @@
       <br>
       <br>
       <div class="jumbotron">
-        <h1 style="text-align: center">'.auth::$choose.'</h1>
-        <h3 style="text-align: center">'.auth::$chosetext'<h3>
+        <h1 style="text-align: center">'.lang::$choose.'</h1>
+        <h3 style="text-align: center">'.lang::$choosetext.'<h3>
+          hier kommt nach login das vortragszeug
+          <form method="post" action="choose.php"><input type="submit" value="'.lang::$logout.'" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;width:25%;"></form>
       </div>
     </div>
   </body>
 </html>
+');}else
+{echo('<h1>'.lang::$notloggedin.'<h1>');header("Location: login.php");}
+?>

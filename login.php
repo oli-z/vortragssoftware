@@ -66,6 +66,7 @@ if($vid||$logincomplete){
   if(!$vid)
     $vid=$logincomplete;
   echo("<div>login OK hier gehts weiter</div><br>".$vid."(verify)<br>"/* -> debug*/);
+  header("Location: choose.php");
   if(auth::isadmin($vid)) echo "admin";
   //echo($_SERVER['HTTP_USER_AGENT']); //debug
 }
