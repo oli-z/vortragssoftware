@@ -20,3 +20,5 @@ Enthält Auth Framework geschrieben von Philipp Jughannß (My1) ( https://github
 ##Dev-ToDo/nicht vergessen:
  - reCaptcha Key in den Setup
  - Sprachdatei fertig machen (orzm)
+ - erweiterung der EasySQL Mini-API für vollständigkeit
+ - Ablegen von wichtigen daten wie keys für recaptcha und clef (für v8) in conf.php
