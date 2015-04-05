@@ -11,5 +11,6 @@ public static $cappub = "6Lfzct4SAAAAAMpwqKGnuyvPitY2QWcE101EfwX_"; //reCaptcha-
 public static $capkey = "6Lfzct4SAAAAAEikbCIE7xMupWfEolC_VeMsTTwu"; //reCaptcha-secretkey -> leave empty to disable
 public static $clfpub = ''; //clef public key -> leave empty to disable
 public static $clfkey = ''; //clef private key -> leave empty to disable
+public static $clfred = 'http://localhost/oli/clef.php?type=clef';
 }
 ?>
