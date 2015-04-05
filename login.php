@@ -19,7 +19,6 @@ echo ('
     <head>
       <meta http-equiv="content-type" content="text/html; charset=utf-8">
       <link rel="stylesheet" href="inc/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
-      <script src="https://www.google.com/recaptcha/api.js" async defer></script> <!-- reCaptcha -->
     </head>
     <body>
       <div class="container">
@@ -68,7 +67,7 @@ echo('<br>
   if(isset(config::$clfpub)&&config::$clfpub)
   echo ('<div style="margin-left:auto; margin-right:auto; display: table; font-size: 2em;">ODER<br></div>
     <div class="clef-wrapper" style="margin-left:auto; margin-right:auto; width:188px;">
-      <script data-type="login" data-redirect-url="http://localhost/oli/clef.php?type=clef"  data-style="button" data-color="blue" data-app-id="'.config::$clfpub.'"  class="clef-button" src="https://clef.io/v3/clef.js" type="text/javascript"></script>
+      <script data-type="login" data-redirect-url="'.config::$clfred.'"  data-style="button" data-color="blue" data-app-id="'.config::$clfpub.'"  class="clef-button" src="https://clef.io/v3/clef.js" type="text/javascript"></script>
     </div>');
 }
 else {
