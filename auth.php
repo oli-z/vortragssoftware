@@ -1,10 +1,10 @@
 <?php
-require_once('config.php');  //config data, like language 
+require_once('config.php');  //config data, like language
 require_once('lang/'.config::$lang.'.php'); //language data for error codes
 require_once('otp.php'); //OTP library comment this and wotp and the OTP part of verify() out for shutting off OTP
 
 class auth {
-  
+
   //remove special chars -> SQL Injection or Base32/64 character check
   public static function clean($z,$b=0){
     if($b==64){
@@ -32,7 +32,7 @@ class auth {
     }
     return $ip;
   }
-  
+
   //create random key for different purposes
   public static function createRandomKey($l=256){
     $keyset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -43,7 +43,7 @@ class auth {
   }
 
   //tools for clef
-  
+
   //clef logon
   private function clef($code){
     //---------------------------------------- getting clef Access token by using the OAuth Code in $code
@@ -96,14 +96,14 @@ class auth {
           return $clef_id;
       }
       else {
-          return false;     
+          return false;
       }
     }
     else {
       return false;
     }
   }
-  
+
   //clef logout
   public function clefout($token) {
     if (isset($token)) {
@@ -142,11 +142,11 @@ class auth {
   }
 
   //holt Session secret key aus datei
-  private function getsecret() {   
-    include "./inc/secure/secret.php"; //super-secret server key -> $fsecret
+  private function getsecret() {
+    include "inc/secure/secret.php"; //super-secret server key -> $fsecret
 		return $fsecret;
   }
-  
+
   //captcha check
   private function ccheck($captcha) {
     if(isset(config::$cappub)&&config::$cappub&&isset(config::$capkey)&&config::$capkey) {
@@ -163,20 +163,20 @@ class auth {
     else
       return true;
   }
-  
+
   //AES cryptoset
   function aescrypt($encrypt, $mc_key) {
     $passcrypt = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $mc_key,trim($encrypt),MCRYPT_MODE_ECB);
     $encode = base64_encode($passcrypt);
     return $encode;
   }
-  
+
   function aesdecrypt($decrypt, $mc_key) {
     $decoded = base64_decode($decrypt);
     $decrypted = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $mc_key,$decoded,MCRYPT_MODE_ECB));
     return $decrypted;
   }
-  
+
   //EasySQL Mini-API
   private static function dbc($link){ //connect
     mysql_connect(config::$dbhost,config::$dbuser,config::$dbpass) or die ("cant connect to SQL (".$link.")");
@@ -202,17 +202,17 @@ class auth {
       $q=mysql_query($q) or die ("cannot ".$action." in db (".$link.")");
     return $q;
   }
-  
+
   private static function dbres($res,$row=0,$col=0) {
     return mysql_result($res,$row,$col);
   }
-  
+
   private static function dbclose($link="") {
     mysql_close();
   }
-  
+
   //Usertools
-  
+
   //create user
   public static function cuser($uname,$pw,$adm=0,$otp="") {
     $user=self::clean($uname);//clean user
@@ -235,7 +235,7 @@ class auth {
         if($otp){  //if we have an OTP seed
           if(strlen($otp>=16)) //check for length
             self::wotp($uid,$otp);
-          else 
+          else
             echo "OTP nicht gültig, user wurde ohne OTP kreiert";
         }
         return true;
@@ -253,7 +253,7 @@ class auth {
       return false;
     }
   }
-  
+
   //write pass
   public static function wpass($uid,$pw){
     if((is_int($uid) || ctype_digit($uid)) && (int)$uid >= 0){
@@ -269,7 +269,7 @@ class auth {
     }
     else echo "uid net numerisch";
   }
-  
+
   //write otp
   public static function wotp($uid,$otp){
     if((is_int($uid) || ctype_digit($uid)) && (int)$uid >= 0){
@@ -287,9 +287,9 @@ class auth {
     }
     else echo "uid net numerisch";
   }
-  
+
   //session tools
-  
+
   //logon User
   public static function logon($user, $pw, $otp="",$captcha="",$clefcode="") {
     $check=self::verify();
@@ -338,11 +338,11 @@ class auth {
           $ssecret=self::getsecret();
           $pw=hash("sha512",$pw.substr($usec,0,128).substr($ssecret,128,128));
           $pw=hash("sha512",$pw.substr($ssecret,0,128).substr($usec,128,128));
-          if ($pw==$loginfo){ //check correct PW                                            
+          if ($pw==$loginfo){ //check correct PW
             if($lotp){ //ckeck for db OTP  //for disabling OTP Cmment from this line to
               if($otp){
                 if(self::clean($lotp,32)!=$lotp){ //OTP-seed not base32 -> AES-crypted or corrupt
-                  if(self::clean($lotp,64)==$lotp){ //otp-seed base64 --> AES-crypted or corrupt       
+                  if(self::clean($lotp,64)==$lotp){ //otp-seed base64 --> AES-crypted or corrupt
                     $oaes=hash("sha512",substr($usec,128,128).substr($ssecret,128,128));
                     $oaes=hash("sha512",$oaes.substr($ssecret,0,128).substr($usec,0,128));
                     $oaes=substr($oaes,(32*$luid%4),32);
@@ -355,7 +355,7 @@ class auth {
                     }
                     else
                       return false; //OTP AES Fail
-                  }            
+                  }
                   else
                     return false; // OTP DB Problem
                 }
@@ -417,11 +417,11 @@ class auth {
     $aeshash=hash("sha512",$ssecret.$usec.$day.$_SERVER['HTTP_USER_AGENT']);//berechne Basis-Hash aus Tag, Server Secret und User Secret
     $offset=floor(($t%86400)/21600)*32; //offset des Hash =1/4 Tag -> 6h, weil AES max keylength-> 32 char und hash = 128 char -> 4 mögliche keys
     $aeskey=substr($aeshash,($offset),32); //sortiere key aus Hash
-    if($debug) 
+    if($debug)
       echo ("ssec=".$ssecret."<br>usec=".$usec."<br>day=".$day."<br>browser=".$_SERVER['HTTP_USER_AGENT']."<br>off=".$offset."<br>hash=".$aeshash."<br>key=".$aeskey."<br>"); //debug
       return $aeskey; //gib key zurück
   }
-  
+
   //Write session
   private function wsession($luid=0,$type="") {
     self::dbc("wsession");
@@ -437,7 +437,7 @@ class auth {
     }
     self::dbclose();
   }
-  
+
   //check for and verify Session
   public static function verify() {
     self::dbc("verify");
@@ -527,7 +527,7 @@ class auth {
     else
       return false;
   }
-  
+
   //check for Admin
   public static function isadmin($uid){
     if((is_int($uid) || ctype_digit($uid)) && (int)$uid >= 0){
@@ -536,7 +536,7 @@ class auth {
       self::dbclose();
     }
   }
-  
+
   //logout user
   public static function logout($type="",$id="") {
     self::getsecret();
