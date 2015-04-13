@@ -1,6 +1,11 @@
-
-
-﻿<head>
+<?php
+include ("../auth.php");
+$v=auth::verify();
+echo $v;
+$a=auth::isadmin($v);
+if($a)
+  echo '<html>
+<head>
 	<meta charset="utf-8">
 	<link href="../inc/css/bootstrap.css" rel="stylesheet">
 </head>
@@ -39,15 +44,16 @@
 	<div class="container theme-showcase" role="main">
 		<div class="jumbotron">
 			<h1>Willkommen bei der Administration.</h1>
-			<?php
-			include "../auth.php";
-			$v=auth::verify();
-			echo $v;
-			$a=auth::isadmin($v);
-			echo ($a);
-			?>
 		</div>
 
 		<a href="..">Zurück zur Hauptseite</a>
 	</div>
 </body>
+</html>';
+else {
+  session_start();
+  //$_SESSION["msg"].=style::error("du bist kein Administrator"); //prep for v9, be excited!
+  die ("du kommst hier nix rein!")
+  header("Location: ../login.php");
+}
+?>
