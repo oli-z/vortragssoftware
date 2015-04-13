@@ -12,31 +12,25 @@ SET time_zone = "+00:00";
 -- Auth Framework
 
 CREATE TABLE IF NOT EXISTS `session` (
-`sid` int(11) NOT NULL,
+`sid` int(11) NOT NULL AUTO_INCREMENT,
   `type` varchar(25) NOT NULL,
   `suid` int(11) NOT NULL,
   `cid` text NOT NULL,
   `void` int(11) NOT NULL
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-REATE TABLE IF NOT EXISTS `users` (
-`uid` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `users` (
+`uid` int(11) NOT NULL AUTO_INCREMENT,
   `uname` varchar(25) NOT NULL,
   `password` char(128) NOT NULL,
   `otp` text NOT NULL,
   `admin` int(11) NOT NULL,
   `usecret` text NOT NULL,
   `clid` bigint(20) DEFAULT NULL
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT ;
-
-ALTER TABLE `session`
-MODIFY `sid` int(11) NOT NULL AUTO_INCREMENT;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `session`
  ADD PRIMARY KEY (`sid`);
-
-ALTER TABLE `users`
-MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `users`
  ADD PRIMARY KEY (`uid`), ADD UNIQUE KEY `uname` (`uname`), ADD UNIQUE KEY `clid` (`clid`);
@@ -46,40 +40,31 @@ ALTER TABLE `users`
 -- Vortragsprojekt
 
 CREATE TABLE IF NOT EXISTS `slots` (
-`slid` int(11) NOT NULL,
+`slid` int(11) NOT NULL AUTO_INCREMENT,
   `sltime` varchar(50) NOT NULL
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `slots`
  ADD PRIMARY KEY (`slid`);
 
-ALTER TABLE `slots`
-MODIFY `slid` int(11) NOT NULL AUTO_INCREMENT;
-
 CREATE TABLE IF NOT EXISTS `vcon` (
-`coid` int(11) NOT NULL,
+`coid` int(11) NOT NULL AUTO_INCREMENT,
   `couid` int(11) NOT NULL,
   `covid` int(11) NOT NULL
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `vcon`
  ADD PRIMARY KEY (`coid`);
 
-ALTER TABLE `vcon`
-MODIFY `coid` int(11) NOT NULL AUTO_INCREMENT;
-
 CREATE TABLE IF NOT EXISTS `vortrag` (
-`vid` int(11) NOT NULL,
+`vid` int(11) NOT NULL AUTO_INCREMENT,
   `vname` varchar(100) NOT NULL,
   `vslid` int(11) NOT NULL,
   `limit` int(11) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `vortrag`
  ADD PRIMARY KEY (`vid`);
-
-ALTER TABLE `vortrag`
-MODIFY `vid` int(11) NOT NULL AUTO_INCREMENT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
