@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS `session` (
   `void` int(11) NOT NULL
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+ALTER TABLE `session`
+ ADD PRIMARY KEY (`sid`);
+
 CREATE TABLE IF NOT EXISTS `users` (
 `uid` int(11) NOT NULL AUTO_INCREMENT,
   `uname` varchar(25) NOT NULL,
@@ -28,9 +31,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `usecret` text NOT NULL,
   `clid` bigint(20) DEFAULT NULL
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
-ALTER TABLE `session`
- ADD PRIMARY KEY (`sid`);
 
 ALTER TABLE `users`
  ADD PRIMARY KEY (`uid`), ADD UNIQUE KEY `uname` (`uname`), ADD UNIQUE KEY `clid` (`clid`);
