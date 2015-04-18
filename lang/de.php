@@ -2,7 +2,6 @@
 //Language file for auth.php
 //Authors: My2, orzm
 class lang{
-public static $title=
 public static $dberror="<strong>Fehler:</strong> Es konnte keine Verbindung zur MySQL-Datenbank hergestellt werden.";
 public static $sqlerror="<strong>Fehler:</strong> es konnte keine Verbindung zum MySQL-Server hergestellt werden.";
 public static $loginform="Login-Formular";
@@ -24,9 +23,20 @@ public static $clefdisconnected="Die Verbindung zu Clef wurde getrennt. Du bist 
 public static $clefdisconnerr="Die Verbindung zu Clef konnte nicht getrennt werden, da du noch in Clef eingeloggt bist.";
 public static $clefiderr="Die angegebene Clef-ID wird bereits von einem anderem Benutzer verwendet.";
 public static $clefsuccess="Der Benutzeraccount wurde erfolgreich mit Clef verbunden.";
-public static $clefunknown="Die angegebene Clef-ID wurde in der Datenbank leider nicht gefunden."
+public static $clefunknown="Die angegebene Clef-ID wurde in der Datenbank leider nicht gefunden.";
 public static $clefdisabled="Clef wurde deaktiviert. Bitte wende dich an den Admin oder nutze die normale Login-Funktion.";
-public static $otpfalse="Der eingegebene OTP-Schlüssel ist falsch. Bitte überprüfe deine Eingabe.";
+public static $otpfalse="Der eingegebene OTP-Schlüssel ist falsch oder mit dem eingegebenen OTP-Schlüssel stimmt etwas nicht. Bitte überprüfe deine Eingabe oder kontaktiere den Administrator.";
+public static $otprequired="Es ist ein Einmalpasswort (OTP) nötig um sich in diesen Account einzuloggen.";
+public static $wrongpw="Da eingegebene Passwort ist falsch.";
+public static $nopw="Das Passwortfeld darf nicht leer sein. Bitte gib ein Passwort ein.";
+public static $wronguser="Der eingegebene Benutzer existiert nicht in der Datenbank. Bitte überprüfe deine Eingabe.";
+public static $emptyuser="Der Benutzername darf nicht leer sein. Bitte gib einen Benutzernamen an.";
+public static $nocaptcha="DU hast das Captcha vergessen oder etwas stimmt mit dem Captcha nicht.";
+public static $sessionkeyerr="Der Sitzungsschlüssel ist defekt. Bitte logge dich neu ein.";
+public static $sessionkeyiperr="Deine IP-Adresse hat sich geändert. Bitte logge dich neu ein.";
+public static $sessionexpired="Deine Sitzung ist abgelaufen. Bitte logge dich neu ein.";
+public static $loggedout="Du wurdest erfolgreich ausgeloggt.";
+public static $loggedouteverywhere="Du wurdest erfolgreich auf allen Geräten ausgeloggt.";
 
 }
 ?>

@@ -363,16 +363,16 @@
                                 }
                               }
                               else {
-                                self::$msg.=style::error("Der OTP seed in der Datenbank ist zu kurz. Bitte Administrator kontaktieren.");
+                                self::$msg.=style::error(lang::$otpfalse);
                               }
                             }
                             else { //OTP AES Fail
-                              self::$msg.=style::error("Der Seed für das Einmalpasswort (OTP) konnte nicht entschlüsselt werden. Bitte Administrator kontaktieren.");
+                              self::$msg.=style::error(lang::$otpfalse);
                               return false;
                             }
                           }
                           else { // OTP DB Problem
-                            self::$msg.=style::error("Der Seed für das Einmalpasswort (OTP) ist defekt. Bitte Administrator kontaktieren.");
+                            self::$msg.=style::error(lang::$otpfalse);
                             return false;
                           }
                         }
@@ -380,15 +380,15 @@
                           if(strlen($lotp>=16)) //wenn okay -> nichts machen -> einfach weiter zum ende des OTP checks
                             if(otp::verify_key($lotp, $otp,5));
                             else
-                              self::$msg.=style::warn("Das Einmalpasswort (OTP) ist falsch.");
+                              self::$msg.=style::warn(lang::$otpfalse);
                           else { //OTP db fail
-                            self::$msg.=style::error("Der OTP seed in der Datenbank ist zu kurz. Bitte Administrator kontaktieren.");
+                            self::$msg.=style::error(lang::$otpfalse);
                             return false; //sonst raus hier,
                           }
                         }
                       }
                       else {
-                        self::$msg.=style::warn("Es ist ein Einmalpasswort (OTP) nötig um sich in diesen Account einzuloggen.");
+                        self::$msg.=style::warn(lang::$otprequired);
                         return false; //OTp nötig aber nicht angegeben.
                       }
                     }
@@ -399,28 +399,28 @@
                 else{  //wrong pass
                   setcookie('key','',time()-3600,config::$ckpath,"",config::$chttps,true);
                   unset($_COOKIE["key"]);
-                  self::$msg.=style::warn("Das Passwort ist falsch...");
+                  self::$msg.=style::warn(lang::$wrongpw);
                   //return false;
                 }
               }
               else {  //no pass
-                self::$msg.=style::warn("Bitte gib ein Passwort ein.");
+                self::$msg.=style::warn(lang::$nopw);
                 return false;
               }
             }
             else { //user doesnt exist
               $_POST["user"]="";
-              self::$msg.=style::warn("Der User existiert nicht.");
+              self::$msg.=style::warn(lang::$wronguser);
               return false;
             }
           }
           else { //no user
-            self::$msg.=style::warn("Bitte gib einen Benutzernamen ein.");
+            self::$msg.=style::warn(lang::$emptyuser);
             return false;
           }
         }
         else {
-          self::$msg.=style::warn("captcha vergessen oder etwas stimmt nicht...");  //captcha fail
+          self::$msg.=style::warn(lang::$nocaptcha);  //captcha fail
           $_POST["user"]="";
         }
       }
@@ -526,34 +526,34 @@
                   $login=false;
                   setcookie('key','',time()-3600,config::$ckpath,"",config::$chttps,true);
                   unset($_COOKIE["key"]);
-                  self::$msg.=style::error('Sitzungsschlüssel defekt.<br />Bitte neu einloggen<br />Info für Administratoren: Session uIDs falsch.');
+                  self::$msg.=style::error(lang::$sessionkeyerr.'Info für Administratoren: Session uIDs falsch.');
                 }
               }
               else { //different IP
                 $login=false;
                 setcookie('key','',time()-3600,config::$ckpath,"",config::$chttps,true);
                 unset($_COOKIE["key"]);
-                self::$msg.=style::warn('Deine IP-Adresse hat sich geändert.<br />Bitte neu einloggen<br />');
+                self::$msg.=style::warn(lang::$sessionkeyiperr);
               }
             }
             else{ //session not in db
               $login=false;
               setcookie('key','',time()-3600,config::$ckpath,"",config::$chttps,true);
               unset($_COOKIE["key"]);
-              self::$msg.=style::warn("deine Session wurde gelöscht. Bitte neu einloggen.");
+              self::$msg.=style::warn(lang::$sessionexpired);
             }
           }
           else{ //key too short
             setcookie('key','',time()-3600,config::$ckpath,"",config::$chttps,true);
             unset($_COOKIE["key"]);
             $login=false;
-            self::$msg.=style::error('Sitzungsschlüssel defekt.<br />Bitte neu einloggen<br />Info für Administratoren: Sessionschlüssel zu kurz.');
+            self::$msg.=style::error(lang::$sessionkeyerr.' Info für Administratoren: Sessionschlüssel zu kurz.');
           }
         }
         else{ //decoding messed up.
           setcookie('key','',time()-3600,config::$ckpath,"",config::$chttps,true);
           unset($_COOKIE["key"]);
-          self::$msg.=style::error('Sitzungsschlüssel defekt.<br />Bitte neu einloggen (hat sich möglicherweise deine IP geändert?)<br />Info für Administratoren: Sessionschlüssel konnte nicht entschlüsselt werden.');
+          self::$msg.=style::error(lang::$sessionkeyerr.' Info für Administratoren: Sessionschlüssel konnte nicht entschlüsselt werden.');
           $login=false;
         }
       }
@@ -662,9 +662,9 @@
       }
       else {
         if ($type!="ghost")
-          $_SESSION["msg"].=style::info("Du wurdest erfolgreich ausgeloggt");
+          $_SESSION["msg"].=style::info(lang::$loggedout);
         else
-          $_SESSION["msg"].=style::success("Du wurdest erfolgreich auf allen Geräten ausgeloggt");
+          $_SESSION["msg"].=style::success(lang::$loggedouteverywhere);
       }
       header("Location: login.php");
       die();
