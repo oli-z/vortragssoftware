@@ -1,9 +1,9 @@
 <?php
-  require_once('config.php');  //config data, like language 
+  require_once('config.php');  //config data, like language
   require_once('lang/'.config::$lang.'.php'); //language data for error codes
   require_once('otp.php'); //OTP library comment this and wotp and the OTP part of verify() out for shutting off OTP
   require_once('easysql.php');
-  
+
   class auth {
     public static $msg="";
     //remove special chars -> SQL Injection or Base32/64 character check
@@ -22,7 +22,7 @@
       $z = str_replace(' ', '', $z);
       return $z;
     }
-    
+
     //get user IP
     public static function ip($noproxy=false){
       if (!(empty($_SERVER['HTTP_X_FORWARDED_FOR'])&&$noproxy)) {
@@ -33,7 +33,7 @@
       }
       return $ip;
     }
-    
+
     //create random key for different purposes
     public static function createRandomKey($l=256){
       $keyset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -42,7 +42,7 @@
       $randkey .= substr($keyset, rand(0, strlen($keyset)-1), 1);
       return $randkey;
     }
-    
+
     //check for natural number
     public static function n($n) {  //return bool
       if((is_int($n) || ctype_digit($n)) && (int)$n >= 0)
@@ -50,20 +50,20 @@
       else
         return false;
     }
-    
+
     //AES cryptoset
     public static function aescrypt($encrypt, $mc_key) {
       $passcrypt = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $mc_key,trim($encrypt),MCRYPT_MODE_ECB);
       $encode = base64_encode($passcrypt);
       return $encode;
     }
-    
+
     public static function aesdecrypt($decrypt, $mc_key) {
       $decoded = base64_decode($decrypt);
       $decrypted = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $mc_key,$decoded,MCRYPT_MODE_ECB));
       return $decrypted;
     }
-    
+
     //tools for clef
     //clef logon
     private function clef($code){  //return clef_id or false
@@ -76,7 +76,7 @@
         'app_secret' => config::$clfkey
         )
         );
-        
+
         $opts = array('http' =>
         array(
         'method'  => 'POST',
@@ -84,16 +84,16 @@
         'content' => $postdata
         )
         );
-        
+
         $url = 'https://clef.io/api/v1/authorize';
-        
+
         $context  = stream_context_create($opts);
         $response = file_get_contents($url, false, $context);
         $response = json_decode($response, true);
-        
+
         if ($response && $response['success']) {
           $access_token = $response['access_token'];
-        } 
+        }
         else {
           echo $response['error'];
         }
@@ -103,35 +103,35 @@
         'method'  => 'GET'
         )
         );
-        
+
         $base_url = 'https://clef.io/api/v1/info';
         $query_string = '?access_token='.$access_token;
         $url = $base_url.$query_string;
-        
+
         $context  = stream_context_create($opts);
         $response = file_get_contents($url, false, $context);
         $response = json_decode($response, true);
-        
+
         if ($response && $response['success']) {
           $user_info = $response['info'];
           $clef_id = $user_info['id'];
           return $clef_id;
         }
         else {
-          return false;     
+          return false;
         }
       }
       else {
         return false;
       }
     }
-    
+
     //clef logout
     private function clefout($token) { //returns clef_id or false
       if (isset($token)) {
-        
+
         $url = "https://clef.io/api/v1/logout";
-        
+
         $postdata = http_build_query(
         array(
         'logout_token' => $token,
@@ -139,7 +139,7 @@
         'app_secret' => config::$clfkey
         )
         );
-        
+
         $opts = array('http' =>
         array(
         'method'  => 'POST',
@@ -147,11 +147,11 @@
         'content' => $postdata
         )
         );
-        
+
         $context  = stream_context_create($opts);
         $response = file_get_contents($url, false, $context);
         $response = json_decode($response, true);
-        
+
         if($response && $response['success']) {
           return $response['clef_id'];
         }
@@ -161,13 +161,13 @@
       else
         return false;
     }
-    
+
     //holt Session secret key aus datei
     private function getsecret() {
       include ("inc/secure/secret.php"); //super-secret server key -> $fsecret
       return $fsecret;
     }
-    
+
     //captcha check
     private function ccheck($captcha) {  //return bool
       if(isset(config::$capact)&&config::$capact&&isset(config::$cappub)&&config::$cappub&&isset(config::$capkey)&&config::$capkey) {
@@ -180,7 +180,7 @@
       else
         return true;  //if no keys set, mark as true
     }
-    
+
     //User tools
     //create user
     public static function cuser($uname,$pw,$adm=0,$otp="") {
@@ -204,14 +204,14 @@
           if($otp){  //if we have an OTP seed
             if(strlen($otp>=16)) //check for length
             self::wotp($uid,$otp);
-            else 
-            echo "OTP nicht gültig, user wurde ohne OTP kreiert";
+            else
+            echo style::warn(lang::$otperr);
           }
           return true;
         }
         else {
           if($cnt>0)
-            echo "Username existiert bereits";
+            echo style::warn(lang::$userexists);
           if($cnt===false)
             echo "fehler";
           return false;
@@ -222,7 +222,7 @@
         return false;
       }
     }
-    
+
     //write pass
     public static function wpass($uid,$pw){
       if(self::n($uid)){
@@ -238,7 +238,7 @@
       }
       else echo "uid net numerisch";
     }
-    
+
     //write otp
     public static function wotp($uid,$otp){
       if(self::n($uid)){
@@ -256,7 +256,7 @@
       }
       else echo "uid net numerisch";
     }
-    
+
     public static function clfdis($uid){
       if(auth::verify("type")!="clef") {
         if(self::n($uid)){
@@ -264,7 +264,7 @@
           esql::dbq('clfdis','update','clid=NULL','users','uid='.$uid);
           esql::dbclose();
           session_start();
-          @$_SESSION["msg"].=style::success("Die Zuordnung mit clef wurde gelöscht.");
+          @$_SESSION["msg"].=style::success(lang::$clefdisconnected);
           self::logout("clfdis",$uid);
           header("Location: login.php");
           die();
@@ -272,11 +272,11 @@
       }
       else { //doesnt normally occur, but as failsafe
         session_start();
-        @$_SESSION["msg"].=style::warn("Die Zuordnung mit clef kann nicht gelöscht werden, wenn du mit clef eingeloggt bist.");
+        @$_SESSION["msg"].=style::warn(lang::$clefdisconnerr);
         header("Location: login.php");
       }
     }
-    
+
     //session tools
     //logon User
     public static function logon($user, $pw, $otp="",$captcha="",$clefcode="") {
@@ -299,7 +299,7 @@
               }
               else {
                 session_start();
-                $_SESSION["msg"].=style::warn("Die angegebene Clef-ID wird bereits verwendet.");
+                $_SESSION["msg"].=style::warn(lang::$clefiderr);
                 return false;
               }
             }
@@ -310,19 +310,19 @@
                   @session_start();
                   self::logout("norel");
                   self::wsession($check,"clef");
-                  $_SESSION["msg"].=style::success("Die Account wurde erfolgreich mit clef verbunden.");
+                  $_SESSION["msg"].=style::success(lang::$clefsuccess);
                 }
                 else
                 {
                   session_start();
-                  $_SESSION["msg"].=style::warn("Die angegebene Clef-ID ist leider unbekannt");
+                  $_SESSION["msg"].=style::warn(lang::$clefunknown);
                 }
               }
             }
           }
         }
         else {
-          self::$msg.=style::error("clef wurde deaktiviert. Bitte wenden Sie sich an den Admin.");
+          self::$msg.=style::error(lang::$clefdisabled);
           return false;
         }
       }
@@ -349,7 +349,7 @@
                     if($lotp){ //ckeck for db OTP in userdb
                       if($otp){
                         if(self::clean($lotp,32)!=$lotp){ //OTP-seed not base32 -> AES-crypted or corrupt
-                          if(self::clean($lotp,64)==$lotp){ //otp-seed base64 --> AES-crypted or corrupt       
+                          if(self::clean($lotp,64)==$lotp){ //otp-seed base64 --> AES-crypted or corrupt
                             $oaes=hash("sha512",substr($usec,128,128).substr($ssecret,128,128));
                             $oaes=hash("sha512",$oaes.substr($ssecret,0,128).substr($usec,0,128));
                             $oaes=substr($oaes,(32*$luid%4),32);
@@ -358,7 +358,7 @@
                               if(strlen($otplain)>=16){ //wenn OTP seed >=16 chars, weiter zur prüfung
                                 if(otp::verify_key($otplain, $otp,5)); //wenn okay -> nichts machen -> einfach weiter zum ende des OTP checks
                                 else { //sonst raus hier
-                                  self::$msg.=style::warn("Das Einmalpasswort (OTP) ist falsch.");
+                                  self::$msg.=style::warn(lang::$otpfalse);
                                   return false;
                                 }
                               }
@@ -368,12 +368,12 @@
                             }
                             else { //OTP AES Fail
                               self::$msg.=style::error("Der Seed für das Einmalpasswort (OTP) konnte nicht entschlüsselt werden. Bitte Administrator kontaktieren.");
-                              return false; 
+                              return false;
                             }
                           }
                           else { // OTP DB Problem
                             self::$msg.=style::error("Der Seed für das Einmalpasswort (OTP) ist defekt. Bitte Administrator kontaktieren.");
-                            return false; 
+                            return false;
                           }
                         }
                         else {  //plaintext Seed
@@ -425,7 +425,7 @@
         }
       }
     }
-    
+
     //create AES key for Session Cookie
     private function cryptokey($uid,$cok=false,$debug=false) { //return session-cryptokey
       $ssecret=self::getsecret();//get Server Secret from file
@@ -451,11 +451,11 @@
       }
       $aeshash=hash("sha512",$ssecret.$usec.$base.$_SERVER['HTTP_USER_AGENT']);//berechne Basis-Hash aus Tag, Server Secret und User Secret
       $aeskey=substr($aeshash,($offset),32); //sortiere key aus Hash
-      if($debug) 
+      if($debug)
         echo ("ssec=".$ssecret."<br>usec=".$usec."<br>base=".$base."<br>browser=".$_SERVER['HTTP_USER_AGENT']."<br>off=".$offset."<br>hash=".$aeshash."<br>key=".$aeskey."<br>"); //debug
       return $aeskey; //gib key zurück
     }
-    
+
     //Write session
     private function wsession($luid=0,$type="") {  //returns nothing
       esql::dbc("wsession");
@@ -482,7 +482,7 @@
       }
       esql::dbclose();
     }
-    
+
     //check for and verify Session
     public static function verify($s=false) {  //return uid, "clef:<clef_id>" or false
       esql::dbc("verify");
@@ -563,7 +563,7 @@
       esql::dbclose();
       return $login;
     }
-    
+
     //decrypt Session Cookie
     private function cdec($cookie){  //return decrypted session key from cookie (256 a-zA-Z0-9 string) or false
       if(substr_count($cookie,":")==1) { //cookie sections intact -> 2 sections seperated with :
@@ -589,7 +589,7 @@
       else
         return false;
     }
-    
+
     //check for Admin
     public static function isadmin($uid){ //return content of isadmin col
       if(self::n($uid)){
@@ -598,7 +598,7 @@
         esql::dbclose();
       }
     }
-    
+
     public static function getcdata($uid,$data) {
       if(self::n($uid)){
         esql::dbc("cdata");
