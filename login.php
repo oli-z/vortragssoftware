@@ -35,6 +35,7 @@ if(!empty(auth::$msg))
       <link rel="stylesheet" href="inc/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
       <link rel="stylesheet" href="inc/css/bootstrap-theme.min.css"> <!-- Bootstrap CSS laden -->
       <link rel="stylesheet" href="inc/css/fa.css"> <!-- FontAwesome CSS laden -->
+      <title>'.lang::$loginform.' - '.config::$title.'</title>
       <noscript><style>
       .js {
         display:none;
@@ -45,7 +46,7 @@ if(!empty(auth::$msg))
       <div class="container">
       <br>
       <br>
-      <div class="jumbotron">'.auth::$msg);
+      <div class="jumbotron"><h1 class="text-center">'.config::$title.'</h1><h2 class="text-center">'.lang::$loginform.'</h2>'.auth::$msg);
 echo ('
       <form method="post" action="login.php" class="form-signin">');
 if(!isset($user))
