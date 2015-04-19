@@ -45,6 +45,7 @@ session_destroy();
     <link rel="stylesheet" href="inc/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
     <link rel="stylesheet" href="inc/css/bootstrap-theme.min.css"> <!-- Bootstrap CSS laden -->
     <link rel="stylesheet" href="inc/css/fa.css"> <!-- FontAwesome CSS laden -->
+    <title>'.lang::$choose.' - '.config::$title.'</title>
     </head>
     <body class="colorbkg">
     <div class="container">
