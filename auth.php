@@ -358,12 +358,12 @@
                               if(strlen($otplain)>=16){ //wenn OTP seed >=16 chars, weiter zur prüfung
                                 if(otp::verify_key($otplain, $otp,5)); //wenn okay -> nichts machen -> einfach weiter zum ende des OTP checks
                                 else { //sonst raus hier
-                                  self::$msg.=style::warn(lang::$otpfalse.' ('.lang::$foradmins.')');
+                                  self::$msg.=style::warn(lang::$otpfalse.' ('.lang::$foradmins.lang::$otpaeserr.')');
                                   return false;
                                 }
                               }
                               else {
-                                self::$msg.=style::error(lang::$otpfalse.' ('.lang::$foradmins.')');
+                                self::$msg.=style::error(lang::$otpfalse.' ('.lang::$foradmins.lang::$otpseederr.')');
                               }
                             }
                             else { //OTP AES Fail

@@ -32,7 +32,6 @@ public static $clefdisabled="Clef wurde deaktiviert. Bitte wende dich an den Adm
 public static $clefdiscon="Zum trennen bitte <{here}> klicken.";
 public static $otpfalse="Der eingegebene OTP-Schlüssel ist falsch oder mit dem eingegebenen OTP-Schlüssel stimmt etwas nicht. Bitte überprüfe deine Eingabe oder kontaktiere den Administrator.";
 public static $foradmins="Info für Administratoren: ";
-public static $otpdberr="Datenbankfehler";
 public static $otpaeserr="AES-Fehler";
 public static $otpdberr="Es gibt einen Fehler mit der Datenbank.";
 public static $otprequired="Es ist ein Einmalpasswort (OTP) nötig um sich in diesen Account einzuloggen.";
