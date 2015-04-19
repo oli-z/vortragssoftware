@@ -90,9 +90,9 @@ echo('<br>
 <input type="submit" value="'.lang::$login.'" name="sub" class="btn btn-lg btn-success btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
   if(isset(config::$clfact)&&config::$clfact&&isset(config::$clfpub)&&config::$clfpub&&isset(config::$clfkey)&&config::$clfkey)
   echo ('<span class="js"><br><div style="margin-left:auto; margin-right:auto; display: table; font-size: 2em;">ODER</div><br>
-    <div class="clef-wrapper" style="margin-left:auto; margin-right:auto; width:188px;">
-      <script data-type="login" data-redirect-url="'.config::$clfred.'"  data-style="button" data-color="blue" data-app-id="'.config::$clfpub.'"  class="clef-button" src="https://clef.io/v3/clef.js" type="text/javascript"></script>
-    </div></span>');
+    <button type="button" class="clef-button btn btn-block btn-lg btn-info" style="margin-left: auto;margin-right: auto;width:25%;"
+    data-app-id="'.config::$clfpub.'" data-redirect-url="'.config::$clfred.'" data-custom="true">'.lang::$clefin.'</button>
+    <script type="text/javascript" src="https://clef.io/v3/clef.js"></script></span>');
 }
 else {
   echo('<input type="submit" value="'.lang::$logout.'" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
@@ -110,7 +110,7 @@ else {
       echo '<br>'.lang::$clefnodis;
   }
   else {
-    echo ('<span class="js"><br>Wenn du deinen Account mit clef verbinden möchtest, klicke <a class="clef-button btn btn-xs btn-info" data-app-id="'.config::$clfpub.'" data-redirect-url="'.config::$clfred.'" data-custom="true">hier</a></span>
+    echo ('<span class="js"><br>'.str_replace("<{here}>",'<a class="clef-button btn btn-xs btn-info" data-app-id="'.config::$clfpub.'" data-redirect-url="'.config::$clfred.'" data-custom="true">'.lang::$here.'</a>',lang::$clefcon).'</span>
     <script type="text/javascript" src="https://clef.io/v3/clef.js"></script></span>');
   }
 }
