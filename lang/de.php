@@ -20,11 +20,14 @@ public static $otperr="Der OTP-Schlüssel ist nicht gültig oder OTP wird für d
 public static $userexists="Der gewählte Nutzername existiert bereits.";
 public static $nouser="Es wurde kein oder ein ungültiger Benutzername angegeben.";
 public static $clefdisconnected="Die Verbindung zu Clef wurde getrennt. Du bist nun ausgeloggt.";
+public static $clefconnected="Dein Account ist mit der Clef-ID <{id}> verbunden.";
 public static $clefdisconnerr="Die Verbindung zu Clef konnte nicht getrennt werden, da du noch in Clef eingeloggt bist.";
 public static $clefiderr="Die angegebene Clef-ID wird bereits von einem anderem Benutzer verwendet.";
+public static $clefnodis="um deine clef-ID zu trennen, logge dich bitte mit Benutzername und Passwort ein.";
 public static $clefsuccess="Der Benutzeraccount wurde erfolgreich mit Clef verbunden.";
 public static $clefunknown="Die angegebene Clef-ID wurde in der Datenbank leider nicht gefunden.";
 public static $clefdisabled="Clef wurde deaktiviert. Bitte wende dich an den Admin oder nutze die normale Login-Funktion.";
+public static $clefdiscon="Zum trennen bitte <{here}> klicken.";
 public static $otpfalse="Der eingegebene OTP-Schlüssel ist falsch oder mit dem eingegebenen OTP-Schlüssel stimmt etwas nicht. Bitte überprüfe deine Eingabe oder kontaktiere den Administrator.";
 public static $otprequired="Es ist ein Einmalpasswort (OTP) nötig um sich in diesen Account einzuloggen.";
 public static $wrongpw="Da eingegebene Passwort ist falsch.";
@@ -37,6 +40,8 @@ public static $sessionkeyiperr="Deine IP-Adresse hat sich geändert. Bitte logge
 public static $sessionexpired="Deine Sitzung ist abgelaufen. Bitte logge dich neu ein.";
 public static $loggedout="Du wurdest erfolgreich ausgeloggt.";
 public static $loggedouteverywhere="Du wurdest erfolgreich auf allen Geräten ausgeloggt.";
-
+public static $here="hier";
+public static $loginok="Du bist korrekt eineloggt. <{here}> kommst du zur Auswahl.";
+public static $adminok="Du bist Administrator. Um zur Administration fortzuschreiten, klicke bitte <{here}>";
 }
 ?>
