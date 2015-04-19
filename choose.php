@@ -49,8 +49,7 @@ session_destroy();
     <body class="colorbkg">
     <div class="container">
     <br>
-    <div class="jumbotron">'.auth::$msg.'
-    <h1 style="text-align: center">'.lang::$choose.'</h1>
+    <div class="jumbotron"><div class="jumbotron"><h1 class="text-center">'.config::$title.'</h1><h2 class="text-center">'.lang::$choose.'</h2>'.auth::$msg.'
     <h3 style="text-align: center">'.lang::$choosetext.'<h3>
     <form method="post" action="">');
     esql::dbc("choose");
