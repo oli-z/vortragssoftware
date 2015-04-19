@@ -1,6 +1,6 @@
 <?php
 //Language file for auth.php
-//Authors: My2, orzm
+//Authors: My1, orzm
 class lang{
 public static $dberror="<strong>Fehler:</strong> Es konnte keine Verbindung zur MySQL-Datenbank hergestellt werden.";
 public static $sqlerror="<strong>Fehler:</strong> es konnte keine Verbindung zum MySQL-Server hergestellt werden.";
