@@ -358,21 +358,21 @@
                               if(strlen($otplain)>=16){ //wenn OTP seed >=16 chars, weiter zur prüfung
                                 if(otp::verify_key($otplain, $otp,5)); //wenn okay -> nichts machen -> einfach weiter zum ende des OTP checks
                                 else { //sonst raus hier
-                                  self::$msg.=style::warn(lang::$otpfalse);
+                                  self::$msg.=style::warn(lang::$otpfalse.' ('.lang::$foradmins.')');
                                   return false;
                                 }
                               }
                               else {
-                                self::$msg.=style::error(lang::$otpfalse);
+                                self::$msg.=style::error(lang::$otpfalse.' ('.lang::$foradmins.')');
                               }
                             }
                             else { //OTP AES Fail
-                              self::$msg.=style::error(lang::$otpfalse);
+                              self::$msg.=style::error(lang::$otpfalse.' ('.lang::$foradmins.lang::$otpaeserr.')');
                               return false;
                             }
                           }
                           else { // OTP DB Problem
-                            self::$msg.=style::error(lang::$otpfalse);
+                            self::$msg.=style::error(lang::$otpfalse.' ('.lang::$foradmins.lang::$otpdberr.')');
                             return false;
                           }
                         }
@@ -382,7 +382,7 @@
                             else
                               self::$msg.=style::warn(lang::$otpfalse);
                           else { //OTP db fail
-                            self::$msg.=style::error(lang::$otpfalse);
+                            self::$msg.=style::error(lang::$otpfalse.' ('.lang::$foradmins.lang::$otpdberr.')');
                             return false; //sonst raus hier,
                           }
                         }
