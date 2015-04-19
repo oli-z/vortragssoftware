@@ -95,21 +95,22 @@ echo('<br>
 }
 else {
   echo('<input type="submit" value="'.lang::$logout.'" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
-  echo('<input type="submit" value="'.lang::$ghost.'" name="ghostout" class="btn btn-lg btn-danger btn-block" style="margin-left: auto;margin-right: auto;width:25%;">
-  login OK <a href="choose.php">hier</a> gehts weiter<br>user ID:'.$user.'<br>'/* -> debug*/);
+  echo('<input type="submit" value="'.lang::$ghost.'" name="ghostout" class="btn btn-lg btn-danger btn-block" style="margin-left: auto;margin-right: auto;width:25%;">'.
+  str_replace("<{here}>",'<a href="choose.php">'.lang::$here.'</a>',lang::$loginok).
+  '<br>user ID:'.$user.'<br>'/* -> debug*/);
   if(auth::isadmin($user))
-    echo 'zum adminpanel <a href="admin/index.php">hier</a> lang';
+    echo str_replace("<{here}>",'<a href="admin/index.php">'.lang::$here.'</a>',lang::$adminok);
   //echo($_SERVER['HTTP_USER_AGENT']); //debug
   if(config::$clfact&&auth::getcdata($user,"clid")) {
+    echo '<br>'.str_replace("<{id}>",auth::getcdata($user,"clid"),lang::$clefconnected);
     if(auth::verify("type")!="clef")
-      echo '<br>Dein Account ist mit der Clef-ID '.auth::getcdata($user,"clid").' verbunden.
-  zum trennen klicke bitte <input type="submit" value="hier" name="clfdis" class="btn btn-xs btn-warning">';
+      echo '<br>'.str_replace("<{here}>",'<input type="submit" value="'.lang::$here.'" name="clfdis" class="btn btn-xs btn-warning">',lang::$clefdiscon);
     else
-      echo '<br>um deine clef-ID zu trennen, logge dich bitte mit Benutzername und Passwort ein.';
+      echo '<br>'.lang::$clefnodis;
   }
   else {
-    echo ('<span class="js"><br>Wenn du deinen Account mit clef verbinden möchtest, klicke <a class="clef-button btn btn-xs btn-info" data-app-id="'.config::$clfpub.'" data-color="blue" data-style="flat" data-redirect-url="'.config::$clfred.'" data-custom="true">hier</a></span>
-    <script type="text/javascript" src="https://clef.io/v3/clef.js"></script>');
+    echo ('<span class="js"><br>Wenn du deinen Account mit clef verbinden möchtest, klicke <a class="clef-button btn btn-xs btn-info" data-app-id="'.config::$clfpub.'" data-redirect-url="'.config::$clfred.'" data-custom="true">hier</a></span>
+    <script type="text/javascript" src="https://clef.io/v3/clef.js"></script></span>');
   }
 }
 echo('</form>
