@@ -22,17 +22,16 @@ if($a)
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="index.php" style="color:white"><strong>vortragssoftware.</strong>admin</a>
-		  <a class="navbar-brand" href="users.php">nutzer</a>
-		  <a class="navbar-brand" href="#">vorträge</a>
-		  <a class="navbar-brand" href="#">konfiguration</a>
-		  <a class="navbar-brand" href="#">updates</a>
+		  <a class="navbar-brand" href="users.php">'.lang::$ausers.'</a>
+		  <a class="navbar-brand" href="#">'.lang::$apresentations.'</a>
+		  <a class="navbar-brand" href="#">'.lang::$aconfig.'</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <form class="navbar-form navbar-right">
             <div class="form-group" style="color:grey">
               Eingeloggt als <strong>'.$uname.'</strong>.
             </div>&ensp;
-            <button type="submit" class="btn btn-success">ausloggen</button>
+            <button type="submit" class="btn btn-success">'.lang::$logout.'</button>
           </form>
         </div>
       </div>
@@ -45,7 +44,7 @@ if($a)
 <br>
 	<div class="container theme-showcase" role="main">
 		<div class="jumbotron">
-			<h1>Willkommen bei der Administration.</h1>
+			<h1>'.lang::$awelcome.'</h1>
 		</div>
 
 		<a href="..">Zurück zur Hauptseite</a>

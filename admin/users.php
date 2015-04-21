@@ -1,4 +1,12 @@
-﻿<head>
+<?php
+include ('../auth.php');
+require_once('../lang/'.config::$lang.'.php');
+$v=auth::verify();
+echo $v;
+$a=auth::isadmin($v);
+$uname=auth::getcdata($v,'uname');
+if($a)
+  echo '﻿<head>
 	<meta charset="utf-8">
 	<link href="../inc/css/bootstrap.css" rel="stylesheet">
 </head>
@@ -21,8 +29,8 @@
         <div id="navbar" class="navbar-collapse collapse">
           <form class="navbar-form navbar-right">
             <div class="form-group" style="color:grey">
-              Eingeloggt als <strong>Lorem Ipsum</strong>.
-            </div>
+              Eingeloggt als <strong>'.$uname.'</strong>.
+            </div>&ensp;
             <button type="submit" class="btn btn-success">ausloggen</button>
           </form>
         </div>
@@ -35,13 +43,10 @@
 			<h1>Benutzerverwaltung</h1>
 
 					<h2>Benutzer hinzufügen:</h2>
-						<input type="text" class="form-control" name="user" placeholder="Benutzername">
-						<br>
-						<input type="password" class="form-control" name="pass" placeholder="Passwort">
-						<br>
-						<input type="password" class="form-control" name="pass" placeholder="Passwort wiederholen">
-						<br>
 						<table>
+						<td><input type="text" class="form-control" name="user" placeholder="Benutzername"></td>
+						<td><input type="password" class="form-control" name="pass" placeholder="Passwort"></td>
+						<td><input type="password" class="form-control" name="pass" placeholder="Passwort wiederholen"></td>
 						<td><input type="checkbox" aria-label="..."> Adminrechte &emsp;</td>
 						<td><input type="submit" value="Nutzer erstellen" class="btn btn-xs btn-success btn-block"></input></td>
 						</table>
@@ -73,4 +78,11 @@
 
 		<a href="..">Zurück zur Hauptseite</a>
 	</div>
-</body>
+</body>';
+else {
+  session_start();
+  //$_SESSION["msg"].=style::error("du bist kein Administrator"); //prep for v9, be excited!
+  die ("du kommst hier nix rein!");
+  header("Location: ../login.php");
+}
+?>

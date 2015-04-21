@@ -48,5 +48,11 @@ public static $loggedouteverywhere="Du wurdest erfolgreich auf allen Geräten au
 public static $here="hier";
 public static $loginok="Du bist korrekt eineloggt. <{here}> kommst du zur Auswahl.";
 public static $adminok="Du bist Administrator. Um zur Administration fortzuschreiten, klicke bitte <{here}>";
+
+// Admin
+public static $ausers="Benutzer";
+public static $apresentations="Vorträge";
+public static $aconfig="Konfiguration";
+public static $awelcome="Wilkommen bei der Administration";
 }
 ?>
