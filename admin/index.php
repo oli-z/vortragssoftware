@@ -1,8 +1,10 @@
 <?php
-include ("../auth.php");
+include ('../auth.php');
+require_once('../lang/'.config::$lang.'.php');
 $v=auth::verify();
 echo $v;
 $a=auth::isadmin($v);
+$uname=auth::getcdata($v,'uname');
 if($a)
   echo '<html>
 <head>
@@ -28,8 +30,8 @@ if($a)
         <div id="navbar" class="navbar-collapse collapse">
           <form class="navbar-form navbar-right">
             <div class="form-group" style="color:grey">
-              Eingeloggt als <strong>Lorem Ipsum</strong>.
-            </div>
+              Eingeloggt als <strong>'.$uname.'</strong>.
+            </div>&ensp;
             <button type="submit" class="btn btn-success">ausloggen</button>
           </form>
         </div>
@@ -53,7 +55,7 @@ if($a)
 else {
   session_start();
   //$_SESSION["msg"].=style::error("du bist kein Administrator"); //prep for v9, be excited!
-  die ("du kommst hier nix rein!")
+  die ("du kommst hier nix rein!");
   header("Location: ../login.php");
 }
 ?>
