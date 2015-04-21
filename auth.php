@@ -461,9 +461,9 @@
       esql::dbc("wsession");
       if(self::n($luid)) {
         if(config::$scount) {
-          $cnt=esql::dbq("wsession","select","count(*),sid","session","suid=".$luid." ORDER BY void asc");
-          if(esql::dbres($cnt,0,0)>=config::$scount)
-          esql::dbq("wsession","delete","","session","sid=".esql::dbres($cnt,0,1));
+          while (esql::dbres(esql::dbq("wsession","select","count(*),sid","session","suid=".$luid." ORDER BY void asc"),0,0)>config::$scount) {
+			esql::dbq("wsession","delete","","session","sid=".esql::dbres($cnt,0,1));
+		  }
         }
         if(config::$sipact)
           $ip=self::ip();
@@ -533,6 +533,7 @@
                 $login=false;
                 setcookie('key','',time()-3600,config::$ckpath,"",config::$chttps,true);
                 unset($_COOKIE["key"]);
+				$query=esql::dbq("verify","delete","","session",'cid LIKE"'.$hkey.'%"');
                 self::$msg.=style::warn(lang::$sessionkeyiperr);
               }
             }
