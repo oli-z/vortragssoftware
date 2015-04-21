@@ -1,0 +1,39 @@
+.wise::after {
+  display: block;
+  font-family: FontAwesome;
+  font-size: 28px;
+  height: 32px;
+  left: 13px;
+  margin-top: -19px;
+  position: absolute;
+  top: 50%;
+  width: 32px;
+}
+
+.fa-stack-button {
+ line-height:0.75em;
+ height: 0.75em;
+}
+
+.fa-stack-button > .fa-stack-2x {
+ line-height:.5em;
+}
+
+.wise {
+  position: relative;
+  padding:11px 14px 11px 48px;
+  margin-bottom:5px;
+  margin-top:5px;
+}
+.wise-w::after {
+  content: "\f071";
+}
+.wise-i::after {
+  content: "\f05a";
+}
+.wise-s::after {
+  content: "\f058";
+}
+.wise-e::after {
+  content: "\f057";
+}
