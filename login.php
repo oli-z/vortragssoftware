@@ -8,10 +8,10 @@ if(isset($_SESSION["msg"]))
   auth::$msg.=$_SESSION["msg"];
 session_destroy();
 //auth::$msg.=style::warn("lol").style::info("lol").style::success("lol").style::error("lol");  //WISE-debug
- if(isset($_POST["ghostout"])&&$_POST["ghostout"]) {
+ if(isset($_POST["ghostout"])) {
   auth::logout("ghost",auth::verify());
 }
-if(isset($_POST["kill"])&&$_POST["kill"]) {
+if(isset($_POST["kill"])) {
   auth::logout();
 }
 if(!isset($_POST['g-recaptcha-response']))
@@ -32,9 +32,11 @@ if(!empty(auth::$msg))
   echo('<html lang="de">
     <head>
       <meta http-equiv="content-type" content="text/html; charset=utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="stylesheet" href="inc/css/bootstrap.min.css"> <!-- Bootstrap CSS laden -->
       <link rel="stylesheet" href="inc/css/bootstrap-theme.min.css"> <!-- Bootstrap CSS laden -->
-      <link rel="stylesheet" href="inc/css/fa.css"> <!-- FontAwesome CSS laden -->
+      <link rel="stylesheet" href="inc/css/font-awesome.min.css"> <!-- FontAwesome CSS laden -->
+      <link rel="stylesheet" href="inc/css/fa.css"> <!-- FA-Wise CSS laden -->
       <title>'.lang::$loginform.' - '.config::$title.'</title>
       <noscript><style>
       .js {
@@ -57,12 +59,12 @@ else
   $val="";
 if(!((ctype_digit($user)&&$user)||$user)) {
   echo('
-  <input type="text" class="form-control" name="user" placeholder="'.lang::$user.'" value="'.$val.'" style="margin-left: auto;margin-right: auto;width:50%;">
+  <input type="text" class="form-control" name="user" placeholder="'.lang::$user.'" value="'.$val.'" style="margin-left: auto;margin-right: auto;min-width:18em;width:50%;">
   <br>
-  <input type="password" class="form-control" name="pass" placeholder="'.lang::$pass.'" style="margin-left: auto;margin-right: auto;width:50%;">');
+  <input type="password" class="form-control" name="pass" placeholder="'.lang::$pass.'" style="margin-left: auto;margin-right: auto;min-width:18em;width:50%;">');
   if(config::$otpact)
     echo ('<br>
-  <input type="text" maxlength="6" class="form-control" name="otp" placeholder="'.lang::$otp.'" autocomplete="off" style="margin-left: auto;margin-right: auto;width:50%;">');
+  <input type="text" maxlength="6" class="form-control" name="otp" placeholder="'.lang::$otp.'" autocomplete="off" style="margin-left: auto;margin-right: auto;min-width:18em;width:50%;">');
 if(isset(config::$capact)&&config::$capact&&isset(config::$cappub)&&config::$cappub&&isset(config::$capkey)&&config::$capkey)
   echo ('<br>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script> <!-- reCaptcha -->
@@ -87,16 +89,20 @@ if(isset(config::$capact)&&config::$capact&&isset(config::$cappub)&&config::$cap
       </div>
     </noscript>');
 echo('<br>
-<input type="submit" value="'.lang::$login.'" name="sub" class="btn btn-lg btn-success btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
+<button type="submit" name="sub" class="btn btn-lg btn-success btn-block" style="margin-left: auto;margin-right: auto;min-width:12em;width:25%;"><i class="fa fa-lg fa-sign-in"></i>&emsp;'.lang::$login.'</button>');
   if(isset(config::$clfact)&&config::$clfact&&isset(config::$clfpub)&&config::$clfpub&&isset(config::$clfkey)&&config::$clfkey)
   echo ('<span class="js"><br><div style="margin-left:auto; margin-right:auto; display: table; font-size: 2em;">ODER</div><br>
-    <button type="button" class="clef-button btn btn-block btn-lg btn-info" style="margin-left: auto;margin-right: auto;width:25%;"
-    data-app-id="'.config::$clfpub.'" data-redirect-url="'.config::$clfred.'" data-custom="true">'.lang::$clefin.'</button>
+    <button type="button" class="clef-button btn btn-block btn-lg btn-info" style="margin-left: auto;margin-right: auto;min-width:12em;width:25%;"
+    data-app-id="'.config::$clfpub.'" data-redirect-url="'.config::$clfred.'" data-custom="true"><i class="fa fa-lg fa-mobile"></i>&emsp;'.lang::$clefin.'</button>
     <script type="text/javascript" src="https://clef.io/v3/clef.js"></script></span>');
 }
 else {
-  echo('<input type="submit" value="'.lang::$logout.'" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;width:25%;">');
-  echo('<input type="submit" value="'.lang::$ghost.'" name="ghostout" class="btn btn-lg btn-danger btn-block" style="margin-left: auto;margin-right: auto;width:25%;">'.
+  echo('<button type="submit" name="kill" class="btn btn-lg btn-warning btn-block" style="margin-left: auto;margin-right: auto;min-width:12em;width:25%;"><i class="fa fa-lg fa-sign-out"></i>&emsp;'.lang::$logout.'</button>');
+  echo('<button type="submit" name="ghostout" class="btn btn-lg btn-danger btn-block" style="margin-left: auto;margin-right: auto;min-width:12em;width:25%;">
+  <span class="fa-stack fa-stack-button">
+  <i class="fa fa-tablet fa-stack-2x fa-fw"></i>
+  <i class="fa fa-times fa-stack-1x fa-fw"></i>
+  </span>'.lang::$ghost.'</button>'.
   str_replace("<{here}>",'<a href="choose.php">'.lang::$here.'</a>',lang::$loginok).
   '<br>user ID:'.$user.'<br>'/* -> debug*/);
   if(auth::isadmin($user))
