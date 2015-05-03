@@ -54,5 +54,7 @@ public static $ausers="Benutzer";
 public static $apresentations="Vorträge";
 public static $aconfig="Konfiguration";
 public static $awelcome="Wilkommen bei der Administration";
+
+public static $submitbug="Bug einreichen";
 }
 ?>
