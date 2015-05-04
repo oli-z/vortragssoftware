@@ -6,7 +6,7 @@ Diese Software dient dazu, um Vorträge und Workshops zu verwalten. Nutzer könn
 Enthällt Bootstrap-Framework (CC BY 3.0 getbootstrap.com)
 Enthält Auth Framework geschrieben von Philipp Jughannß (My1) ( https://github.com/My1 )
 
-##Bediningen für Auth Framework:
+## Bediningen für Auth Framework:
 
 1. Man darf dieses Framework (haupsächlich aus auth.php, logon.php und den Supportdateien bestehend) nutzen und verändern, wie es einem beliebt.
 
@@ -22,7 +22,7 @@ Enthält Auth Framework geschrieben von Philipp Jughannß (My1) ( https://github
 
 4 Das Framework muss stehts unter diesen Bedingungen weitergegeben werden.
 
-##Dev-ToDo/nicht vergessen:
+## Dev-ToDo/nicht vergessen:
  - reCaptcha Key in den Setup
  - Sprachdatei fertig machen (orzm)
  - erweiterung der EasySQL Mini-API für vollständigkeit
