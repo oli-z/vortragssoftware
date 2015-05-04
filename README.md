@@ -1,6 +1,11 @@
 # Vortragssoftware
+
+Diese Software dient dazu, um Vorträge und Workshops zu verwalten. Nutzer können sich dann zu diesen Vorträgen eintragen.
+
+## Lizenzinformationen
 Enthällt Bootstrap-Framework (CC BY 3.0 getbootstrap.com)
 Enthält Auth Framework geschrieben von Philipp Jughannß (My1) ( https://github.com/My1 )
+
 ##Bediningen für Auth Framework:
 
 1. Man darf dieses Framework (haupsächlich aus auth.php, logon.php und den Supportdateien bestehend) nutzen und verändern, wie es einem beliebt.
