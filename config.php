@@ -25,8 +25,8 @@ class config{
   public static $cappub = ""; //reCaptcha-sitekey
   public static $capkey = ""; //reCaptcha-secretkey
   public static $clfact = true;
-  public static $clfpub = '2345642542352435'; //clef public key
-  public static $clfkey = '2523532453245432'; //clef private key
+  public static $clfpub = 'InsertKeyHere'; //clef public key
+  public static $clfkey = 'InsertKeyHere'; //clef private key
   public static $clfred = 'http://domain.tld/clef.php?type=clef';
 }
 
