@@ -14,41 +14,62 @@
 </div>
 <h1>Vortragssoftware v1.0</h1>
 <h2>Setup - Schritt 2</h2>
-<div>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</div>
+<div>Vortragssoftware wird installiert, bitte warten...</div>
 <br>
-<div class="input-group">
-<span class="input-group-addon" id="basic-addon1">MySQL-Server</span>
-<input type="text" class="form-control" placeholder="localhost" aria-describedby="basic-addon1">
-</div>
-<br>
-<div class="input-group">
-<span class="input-group-addon" id="basic-addon1">MySQL-Datenbank</span>
-<input type="text" class="form-control" placeholder="vortragsprogramm" aria-describedby="basic-addon1">
-</div>
-<br>
-<div class="input-group">
-<span class="input-group-addon" id="basic-addon1">MySQL-Benutzername</span>
-<input type="text" class="form-control" placeholder="root" aria-describedby="basic-addon1">
-</div>
-<br>
-<div class="input-group">
-<span class="input-group-addon" id="basic-addon1">MySQL-Passwort</span>
-<input type="password" class="form-control" placeholder="********" aria-describedby="basic-addon1">
-</div>
-<br>
-<hr>
-<br>
-<div class="input-group">
-<span class="input-group-addon" id="basic-addon1">Sprachdatei</span>
-<input type="text" class="form-control" placeholder="de" aria-describedby="basic-addon1">
-<span class="input-group-addon">.php</span>
-<span class="input-group-addon"><font color="red"><strong>Die Sprachdatei muss sich im "lang"-Ordner befinden.</strong></font></span>
-</div>
-<br>
-<br>
-<a style="float: right;" type="button" href="index2.php" class="btn btn-lg btn-success">weiter &rArr;</a>
-<br>
-<br>
+<?php
+require_once(../config.php) or die('Config-Datei fehlt oder nicht richtig ausgefüllt.');
+mysql_connect($dbhost,$dbuser,$dbpass);
+mysql_select_db($dbname);
+mysql_query('
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+-- --------------------------------------------------------
+-- Auth Framework
+CREATE TABLE IF NOT EXISTS `session` (
+`sid` int(11) NOT NULL primary key AUTO_INCREMENT,
+`type` varchar(25) NOT NULL,
+`suid` int(11) NOT NULL,
+`cid` text NOT NULL,
+`void` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `users` (
+`uid` int(11) NOT NULL primary key AUTO_INCREMENT,
+`uname` varchar(25) NOT NULL,
+`password` char(128) NOT NULL,
+`otp` text NOT NULL,
+`admin` int(11) NOT NULL,
+`usecret` text NOT NULL,
+`clid` bigint(20) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+ALTER TABLE `users`
+ADD UNIQUE KEY `uname` (`uname`), ADD UNIQUE KEY `clid` (`clid`);
+-- -------------------------------------------------------
+-- Vortragsprojekt
+CREATE TABLE IF NOT EXISTS `slots` (
+`slid` int(11) NOT NULL primary key AUTO_INCREMENT,
+`sltime` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `vcon` (
+`coid` int(11) NOT NULL primary key AUTO_INCREMENT,
+`couid` int(11) NOT NULL,
+`covid` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `vortrag` (
+`vid` int(11) NOT NULL primary key AUTO_INCREMENT,
+`vname` varchar(100) NOT NULL,
+`vslid` int(11) NOT NULL,
+`limit` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+');
+mysql_close;
+?>
 </div>
 </div>
 </body>
