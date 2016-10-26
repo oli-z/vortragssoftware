@@ -4,7 +4,7 @@ Diese Software dient dazu, um Vorträge und Workshops zu verwalten. Nutzer könn
 
 ## Lizenzinformationen
 Enthällt Bootstrap-Framework (CC BY 3.0 getbootstrap.com)
-Enthält Auth Framework geschrieben von Philipp Jughannß (My1) ( https://github.com/My1 )
+Enthält Auth und easySQL und weiteres Framework geschrieben von Philipp Jughannß (My1) ( https://github.com/My1 )
 
 ## Bediningen für Auth Framework:
 
